@@ -1,0 +1,197 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Cortisol กับความจำ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: stress-level selector on top; brain schematic + explanation side by side; memory bars + inverted-U below */
+:root{
+  --bg:#F3F4F8; --surface:#FFFFFF; --ink:#1A1D2B; --muted:#5C6178; --line:#D9DCE6; --soft:#E8EAF2;
+  --neo:#5553C9; --sub:#B8661A; --hip:#0F8276; --sig:#D23C67;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11131B; --surface:#1A1D28; --ink:#E8EAF2; --muted:#9AA0B8; --line:#2C3040; --soft:#232737;
+  --neo:#9493F2; --sub:#E79A4A; --hip:#3CC0B0; --sig:#FF6F93; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11131B; --surface:#1A1D28; --ink:#E8EAF2; --muted:#9AA0B8; --line:#2C3040; --soft:#232737;
+  --neo:#9493F2; --sub:#E79A4A; --hip:#3CC0B0; --sig:#FF6F93; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65}
+.wrap{max-width:1000px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px;display:flex;flex-direction:column;gap:16px}
+h1{font-family:var(--f-display);font-size:clamp(1.4rem,4.5vw,2rem);margin:0;line-height:1.25;text-wrap:balance}
+.sub{color:var(--muted);margin:.25rem 0 0;font-size:.92rem;max-width:65ch}
+
+.levels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.levels button{font-family:var(--f-display);font-weight:600;font-size:.92rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:10px 6px;cursor:pointer;line-height:1.25}
+.levels button small{display:block;font-family:var(--f-body);font-weight:400;font-size:.72rem;color:var(--muted)}
+.levels button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.levels button.on small{color:var(--bg);opacity:.75}
+.levels button:focus-visible{outline:2px solid var(--sig);outline-offset:2px}
+
+.grid{display:grid;gap:16px}
+@media (min-width:820px){.grid{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.box h2{font-family:var(--f-display);font-size:.95rem;margin:0 0 8px;color:var(--muted);font-weight:600}
+.box h3{font-family:var(--f-display);font-size:1.2rem;margin:0 0 4px;line-height:1.35;text-wrap:balance}
+.chip{display:inline-block;font-family:var(--f-mono);font-size:.74rem;padding:2px 9px;border-radius:999px;border:1px solid var(--sig);color:var(--sig);margin-bottom:10px}
+ul.pts{margin:0;padding-left:1.15rem;display:flex;flex-direction:column;gap:6px}
+.recall{margin-top:12px;padding:9px 12px;background:var(--soft);border-radius:6px;font-size:.9rem}
+.recall b{font-family:var(--f-display)}
+.region{margin-top:12px;font-size:.9rem;border-top:1px solid var(--line);padding-top:10px;min-height:3.2em}
+.region b{font-family:var(--f-display)}
+.region .hint{color:var(--muted)}
+
+svg{display:block;width:100%;height:auto}
+.outline{fill:var(--soft);stroke:var(--neo);stroke-opacity:.3;stroke-width:6}
+.node{cursor:pointer}
+.node:focus{outline:none}
+.node:focus-visible .ring,.node.sel .ring{opacity:1}
+.ring{fill:none;stroke:var(--ink);stroke-width:1.5;opacity:0}
+.lbl{font-family:var(--f-body);font-size:12px;fill:var(--ink);font-weight:600}
+.state{font-family:var(--f-mono);font-size:10px;fill:var(--muted)}
+.halo,.core,.ring{transition:r .6s ease,opacity .6s ease}
+.link{fill:none;stroke-width:3;stroke-linecap:round;transition:opacity .6s,stroke-width .6s}
+
+.bars{display:flex;flex-direction:column;gap:14px}
+.bar .top{display:flex;justify-content:space-between;gap:8px;font-size:.9rem;flex-wrap:wrap}
+.bar .top b{font-weight:600}
+.bar .top span{color:var(--muted);font-size:.78rem}
+.track{height:12px;background:var(--soft);border-radius:6px;overflow:hidden;margin-top:4px}
+.fill{height:100%;border-radius:6px;transition:width .6s ease}
+.why{font-size:.8rem;color:var(--muted);margin-top:3px}
+.curve{fill:none;stroke:var(--hip);stroke-width:2.5}
+.axis{stroke:var(--line);stroke-width:1}
+.ax{font-family:var(--f-body);font-size:10px;fill:var(--muted)}
+.marker{fill:var(--sig);transition:cx .6s ease,cy .6s ease}
+.cnote{font-size:.82rem;color:var(--muted);margin:4px 0 0}
+.note{font-size:.8rem;color:var(--muted);max-width:70ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <div>
+    <h1>ระดับความเครียดกับการเข้ารหัสความจำ</h1>
+    <p class="sub">ภายใต้ความเครียดระดับสูง ความจำที่บกพร่องคือ <b>บริบทของเหตุการณ์</b> (episodic) มิใช่ความรู้เดิม (semantic) เลือกระดับความเครียดเพื่อดูการเปลี่ยนแปลงของแต่ละระบบ</p>
+  </div>
+
+  <div class="levels" id="levels"></div>
+
+  <div class="grid">
+    <div class="box">
+      <h2>ระดับการทำงานของสมอง · แตะแต่ละส่วนเพื่อดูหน้าที่</h2>
+      <svg viewBox="0 0 420 262" role="img" aria-label="แผนผังสมองแสดงระดับการทำงานของแต่ละส่วน">
+        <path class="outline" d="M58,140 C42,82 100,30 190,24 C280,18 362,62 372,128 C378,170 356,196 320,198 C290,200 250,210 200,208 C150,206 106,198 84,182 C68,170 60,156 58,140 Z"/>
+        <g id="links"></g>
+        <g id="nodes"></g>
+        <text class="ax" x="210" y="256" text-anchor="middle">ขนาดวง = ระดับการทำงาน · ความเข้มของเส้น = ระดับการเชื่อมต่อ</text>
+      </svg>
+      <div class="region" id="region"><span class="hint">แตะวงกลมในภาพเพื่อดูบทบาทของส่วนนั้นในระดับความเครียดที่เลือก</span></div>
+    </div>
+
+    <div class="box" aria-live="polite">
+      <h3 id="title"></h3>
+      <span class="chip" id="chip"></span>
+      <ul class="pts" id="pts"></ul>
+      <div class="recall" id="recall"></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="box">
+      <h2>ประสิทธิภาพการเข้ารหัสความจำแต่ละประเภท</h2>
+      <div class="bars" id="bars"></div>
+    </div>
+    <div class="box">
+      <h2>Hippocampus ตอบสนองต่อ cortisol เป็นรูป U คว่ำ</h2>
+      <svg viewBox="0 0 300 130" aria-label="กราฟ U คว่ำ">
+        <line class="axis" x1="30" y1="105" x2="290" y2="105"/>
+        <line class="axis" x1="30" y1="10" x2="30" y2="105"/>
+        <path class="curve" d="M30,90 C90,10 150,10 190,40 S250,100 290,102"/>
+        <text class="ax" x="160" y="122" text-anchor="middle">ระดับ cortisol →</text>
+        <text class="ax" x="22" y="60" text-anchor="middle" transform="rotate(-90 22 60)">การเข้ารหัส</text>
+        <circle class="marker" id="marker" r="6" cx="60" cy="58"/>
+      </svg>
+      <p class="cnote">Cortisol ทั้งในระดับต่ำและสูงเกินไปลดประสิทธิภาพของ hippocampus โดยระดับปานกลางให้ผลสูงสุด</p>
+    </div>
+  </div>
+  <p class="note">แผนผังอย่างง่ายเพื่อการเรียน ขนาดวงและความยาวแถบเป็นระดับสัมพัทธ์ ไม่ใช่ค่าที่วัดได้จริง</p>
+</div>
+
+<script>
+const R={
+  pfc:{x:100,y:100,c:"var(--neo)",n:"Prefrontal",d:"การกำกับอารมณ์"},
+  neo:{x:300,y:80,c:"var(--neo)",n:"Neocortex",d:"คลังความรู้เดิม"},
+  hip:{x:220,y:168,c:"var(--hip)",n:"Hippocampus",d:"บริบทเชิงพื้นที่และเวลา"},
+  amy:{x:150,y:172,c:"var(--sub)",n:"Amygdala",d:"ความกลัว · การตอบสนองทางกาย"},
+  str:{x:190,y:112,c:"var(--sub)",n:"Striatum",d:"การตอบสนองแบบนิสัย"}
+};
+const L=[["hip","neo","var(--hip)"],["hip","pfc","var(--hip)"],["pfc","amy","var(--neo)"],["amy","hip","var(--sub)"]];
+const S=[
+ {k:"ปกติ",s:"ภาวะพัก",title:"ระบบความจำทำงานในภาวะสมดุล",chip:"MR ถูกจับเกือบเต็ม · GR ทำงานน้อย",
+  pts:["Cortisol ระดับพื้นฐานจับกับ MR ใน hippocampus ส่งเสริมความพร้อมของ synaptic plasticity","Prefrontal cortex ทำหน้าที่กำกับการตอบสนองของ amygdala แบบ top-down ได้เต็มที่","เหตุการณ์ที่ไม่มีนัยสำคัญทางอารมณ์ถูกเข้ารหัสในระดับปานกลาง"],
+  recall:"ระลึกได้ในรูปแบบความจำเชิงเล่าเรื่อง (narrative memory) พร้อมบริบทด้านเวลาและสถานที่",
+  r:{pfc:"ทำงานปกติ กำกับการตอบสนองทางอารมณ์ของ amygdala ได้",neo:"รับและจัดเก็บรายละเอียดของเหตุการณ์ตามปกติ",hip:"เชื่อมโยงเหตุการณ์เข้ากับบริบทเวลาและสถานที่ได้ตามปกติ",amy:"มีระดับการทำงานต่ำ เนื่องจากไม่มีสิ่งเร้าที่เป็นภัย",str:"ทำงานตามปกติในการควบคุมพฤติกรรมที่เป็นนิสัย"},
+  a:{pfc:70,neo:80,hip:60,amy:30,str:40},ln:[60,60,60,40],m:[60,58],b:[60,30,85]},
+ {k:"ปานกลาง",s:"ความเครียดเฉียบพลันระดับปานกลาง",title:"ความเครียดระดับปานกลางเสริมการเข้ารหัสความจำ",chip:"GR เริ่มทำงาน · เสริม consolidation",
+  pts:["Basolateral amygdala ส่งสัญญาณระบุนัยสำคัญทางอารมณ์ไปยัง hippocampus","Noradrenaline และ cortisol ในระดับที่เหมาะสมเสริม long-term potentiation (LTP) ใน hippocampus","เหตุการณ์ที่มีนัยสำคัญทางอารมณ์จึงถูกจดจำได้ชัดเจนกว่าเหตุการณ์ทั่วไป"],
+  recall:"ระลึกได้ชัดเจน ทั้งเนื้อหาและองค์ประกอบทางอารมณ์ โดยยังระบุได้ว่าเป็นเหตุการณ์ในอดีต",
+  r:{pfc:"ทำงานได้ดี คงความสามารถด้านความใส่ใจและ working memory",neo:"รับข้อมูลจาก hippocampus ไปจัดเก็บได้อย่างมีประสิทธิภาพ",hip:"ทำงานได้สูงสุด ตรงกับจุดยอดของกราฟ U คว่ำ",amy:"ตื่นตัวในระดับเหมาะสม ช่วยระบุนัยสำคัญทางอารมณ์ให้กับความจำ",str:"มีระดับการทำงานเพิ่มขึ้นเล็กน้อย"},
+  a:{pfc:70,neo:80,hip:90,amy:65,str:50},ln:[90,80,70,70],m:[130,22],b:[90,65,85]},
+ {k:"สูงมาก",s:"ภาวะคุกคาม / บาดแผลทางใจ",title:"การทำงานของ hippocampus ถูกยับยั้ง ขณะที่ amygdala เข้ารหัสความกลัวได้เด่นชัดขึ้น",chip:"GR ทำงานเต็มที่ · ยับยั้ง LTP ใน hippocampus",
+  pts:["Cortisol ระดับสูงจับกับ GR อย่างเต็มที่ ส่งผลยับยั้งการเข้ารหัสของ hippocampus","Catecholamine ระดับสูงลดการทำงานของ prefrontal cortex ทำให้การกำกับ amygdala แบบ top-down บกพร่อง","Amygdala และ dorsal striatum ทำงานเพิ่มขึ้น ความกลัวที่ถูกวางเงื่อนไขและการตอบสนองทางกายจึงถูกเข้ารหัสอย่างแข็งแรง","ความจำที่ได้จึงมีลักษณะแยกเป็นส่วน (fragmented) ขาดบริบทเชิงพื้นที่และเวลา (spatiotemporal context) ที่ระบุว่าเหตุการณ์สิ้นสุดลงแล้ว"],
+  recall:"เมื่อถูกกระตุ้นด้วยสิ่งเร้าที่เกี่ยวข้อง ร่างกายตอบสนองราวกับเหตุการณ์กำลังเกิดขึ้นในปัจจุบัน แต่ไม่สามารถเรียบเรียงเป็นความจำเชิงเล่าเรื่องได้",
+  r:{pfc:"ทำงานลดลงเมื่อ catecholamine สูง ส่งผลต่อการคิดเชิงบริหาร (executive function) และการกำกับอารมณ์",neo:"ความรู้ที่ถูกจัดเก็บไว้ก่อนหน้ายังคงอยู่ แต่การจัดเก็บเหตุการณ์ใหม่ลดลง",hip:"ถูก cortisol ยับยั้ง จึงไม่สามารถผนวกบริบทเวลาและสถานที่เข้ากับเหตุการณ์ได้",amy:"ทำงานสูงสุด เข้ารหัสความกลัว ข้อมูลรับสัมผัส และความรู้สึกทางกายในลักษณะแยกส่วน",str:"สมองเปลี่ยนจากการเรียนรู้เชิงปัญญา (cognitive learning) ไปใช้การเรียนรู้แบบนิสัย (habit learning)"},
+  a:{pfc:25,neo:75,hip:22,amy:98,str:88},ln:[12,12,10,30],m:[240,88],b:[20,95,80]},
+ {k:"เรื้อรัง",s:"ความเครียดเรื้อรัง",title:"โครงสร้าง hippocampus เปลี่ยนแปลง และระบบตอบสนองต่อภัยไวเกินปกติ",chip:"Dendritic atrophy ใน CA3 · neurogenesis ลดลง",
+  pts:["การสัมผัส cortisol ระดับสูงเป็นเวลานานทำให้เกิด dendritic atrophy ในเซลล์ประสาท CA3","Adult neurogenesis ใน dentate gyrus ลดลง และบางการศึกษาพบปริมาตร hippocampus ลดลง","Amygdala มีความไวเพิ่มขึ้น (hyperreactivity) ตอบสนองแม้ต่อสิ่งเร้าที่มีความรุนแรงต่ำ"],
+  recall:"ความสามารถในการเข้ารหัสความจำ episodic ใหม่ลดลง ขณะที่ยังคงมีภาวะตื่นตัวเกิน (hyperarousal) ต่อสิ่งเร้าที่เชื่อมโยงกับเหตุการณ์ในอดีต",
+  r:{pfc:"ทำงานลดลงอย่างต่อเนื่อง ส่งผลต่อความใส่ใจและการกำกับตนเอง",neo:"ความรู้เดิมค่อนข้างคงอยู่ แต่ประสิทธิภาพการเรียนรู้ใหม่ลดลง",hip:"มีการเปลี่ยนแปลงเชิงโครงสร้าง ส่งผลให้การสร้างความจำที่มีบริบทบกพร่อง",amy:"มีความไวสูงกว่าปกติ ตอบสนองต่อสิ่งเร้าที่มีความรุนแรงต่ำ",str:"ยังคงพึ่งพาการตอบสนองแบบนิสัยและอัตโนมัติเป็นหลัก"},
+  a:{pfc:35,neo:70,hip:12,amy:88,str:80},ln:[8,10,15,25],m:[285,101],b:[15,90,70]}
+];
+const B=[
+ ["บริบท · ลำดับเหตุการณ์ · มิติเวลา","episodic (explicit)","var(--hip)","อาศัย hippocampus จึงบกพร่องได้ง่ายเมื่อ cortisol สูง"],
+ ["ความกลัว · ความรู้สึกทางกาย","implicit","var(--sub)","อาศัย amygdala และ striatum ซึ่งทำงานเพิ่มขึ้นภายใต้ความเครียด"],
+ ["ความรู้เดิม","semantic ที่ผ่าน consolidation แล้ว","var(--neo)","จัดเก็บใน neocortex และพึ่งพา hippocampus น้อย จึงค่อนข้างคงที่"]
+];
+const NS="http://www.w3.org/2000/svg",$=i=>document.getElementById(i);
+let cur=2, sel=null;
+
+const lk=L.map(([a,b,c])=>{const p=document.createElementNS(NS,"path");p.setAttribute("class","link");p.setAttribute("stroke",c);p.setAttribute("d",`M${R[a].x},${R[a].y} L${R[b].x},${R[b].y}`);$("links").appendChild(p);return p});
+const nd={};
+for(const[k,r] of Object.entries(R)){
+  const g=document.createElementNS(NS,"g");
+  g.setAttribute("class","node");g.setAttribute("tabindex","0");g.setAttribute("role","button");g.setAttribute("aria-label",r.n);
+  const below=k==="hip"||k==="amy";
+  g.innerHTML=`<circle class="halo" cx="${r.x}" cy="${r.y}" fill="${r.c}" opacity=".18"/><circle class="core" cx="${r.x}" cy="${r.y}" fill="${r.c}"/><circle class="ring" cx="${r.x}" cy="${r.y}"/>
+  <text class="lbl" x="${r.x}" y="${below?r.y+44:r.y-36}" text-anchor="middle">${r.n}</text>
+  <text class="state" x="${r.x}" y="${below?r.y+57:r.y-24}" text-anchor="middle">${r.d}</text>`;
+  const act=()=>{sel=k;renderRegion()};
+  g.addEventListener("click",act);
+  g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();act()}});
+  $("nodes").appendChild(g);nd[k]=g;
+}
+$("bars").innerHTML=B.map((b,i)=>`<div class="bar"><div class="top"><b>${b[0]}</b><span>${b[1]}</span></div><div class="track"><div class="fill" id="f${i}" style="background:${b[2]}"></div></div><div class="why">${b[3]}</div></div>`).join("");
+S.forEach((s,i)=>{const b=document.createElement("button");b.type="button";b.innerHTML=`${s.k}<small>${s.s}</small>`;b.onclick=()=>set(i);$("levels").appendChild(b)});
+
+function renderRegion(){
+  for(const k in nd)nd[k].classList.toggle("sel",k===sel);
+  if(!sel)return;
+  $("region").innerHTML=`<b style="color:${R[sel].c}">${R[sel].n}</b> · ${S[cur].r[sel]}`;
+}
+function set(i){
+  cur=i;const s=S[i];
+  [...$("levels").children].forEach((b,j)=>b.classList.toggle("on",j===i));
+  $("title").textContent=s.title;$("chip").textContent=s.chip;
+  $("pts").innerHTML=s.pts.map(p=>`<li>${p}</li>`).join("");
+  $("recall").innerHTML=`<b>ผลต่อการระลึก</b> ${s.recall}`;
+  for(const k in nd){const v=s.a[k];const[h,c,rg]=nd[k].querySelectorAll("circle");const rr=10+v*.2;h.setAttribute("r",rr);c.setAttribute("r",4+v*.11);c.setAttribute("opacity",.35+v/150);rg.setAttribute("r",rr+3)}
+  lk.forEach((p,j)=>{p.style.opacity=.1+s.ln[j]/110;p.style.strokeWidth=1+s.ln[j]/25});
+  s.b.forEach((v,j)=>$("f"+j).style.width=v+"%");
+  $("marker").setAttribute("cx",s.m[0]);$("marker").setAttribute("cy",s.m[1]);
+  renderRegion();
+}
+set(2);
+</script>
+
+</body></html>
