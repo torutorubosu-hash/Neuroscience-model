@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Focused Mindfulness ใน Brainspotting</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: step track; left = client's brain schematic + arousal gauge with window of tolerance; right = step card split into client lane and therapist lane */
+:root{
+  --bg:#F3F4F8; --surface:#FFFFFF; --ink:#1A1D2B; --muted:#5C6178; --line:#D9DCE6; --soft:#E8EAF2;
+  --neo:#5553C9; --sub:#B8661A; --hip:#0F8276; --sig:#D23C67; --ins:#2F7BB8; --win:#0F8276;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11131B; --surface:#1A1D28; --ink:#E8EAF2; --muted:#9AA0B8; --line:#2C3040; --soft:#232737;
+  --neo:#9493F2; --sub:#E79A4A; --hip:#3CC0B0; --sig:#FF6F93; --ins:#6BB3F0; --win:#3CC0B0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11131B; --surface:#1A1D28; --ink:#E8EAF2; --muted:#9AA0B8; --line:#2C3040; --soft:#232737;
+  --neo:#9493F2; --sub:#E79A4A; --hip:#3CC0B0; --sig:#FF6F93; --ins:#6BB3F0; --win:#3CC0B0; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.45rem,4.5vw,2.1rem);line-height:1.25;margin:0;text-wrap:balance}
+.lead{margin:.35rem 0 0;color:var(--muted);max-width:68ch}
+
+.track{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.track button{font-family:var(--f-body);font-size:.72rem;line-height:1.3;text-align:left;border:0;border-radius:6px;padding:7px 8px;background:var(--soft);color:var(--muted);cursor:pointer;min-width:0}
+.track button b{display:block;font-family:var(--f-mono);font-size:.7rem}
+.track button.on{background:var(--ink);color:var(--bg)}
+.track button:focus-visible{outline:2px solid var(--sig);outline-offset:2px}
+@media (max-width:640px){.track button span{display:none}.track button{text-align:center}}
+
+.grid{display:grid;gap:16px}
+@media (min-width:880px){.grid{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);align-items:start}.fig{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.fig{display:flex;flex-direction:column;gap:10px}
+.fig h2,.lane h3{font-family:var(--f-display);font-size:.9rem;font-weight:600;color:var(--muted);margin:0}
+svg{display:block;width:100%;height:auto}
+.outline{fill:var(--soft);stroke:var(--neo);stroke-opacity:.3;stroke-width:6}
+.stem{fill:var(--soft);stroke:var(--line);stroke-width:1.5}
+.node{cursor:pointer}
+.node:focus{outline:none}
+.ring{fill:none;stroke:var(--ink);stroke-width:1.5;opacity:0}
+.node.sel .ring,.node:focus-visible .ring{opacity:1}
+.halo,.core{transition:r .5s ease,opacity .5s ease}
+.lbl{font-family:var(--f-body);font-size:11.5px;fill:var(--muted);transition:fill .4s}
+.node.on .lbl{fill:var(--ink);font-weight:600}
+.gaze{stroke:var(--sig);stroke-width:2;stroke-dasharray:4 4;fill:none;transition:opacity .4s}
+.ptr{fill:var(--sig);transition:cx .6s ease,cy .6s ease,opacity .4s}
+.eye{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
+.pupil{fill:var(--ink);transition:cx .6s ease,cy .6s ease}
+
+.gauge{display:flex;flex-direction:column;gap:6px}
+.gtop{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.gtop b{font-family:var(--f-display)}
+.sud{font-family:var(--f-mono);font-size:1.4rem;color:var(--sig);font-variant-numeric:tabular-nums}
+.gbar{position:relative;height:18px;background:var(--soft);border-radius:9px}
+.gwin{position:absolute;top:0;bottom:0;left:20%;width:55%;background:var(--win);opacity:.18;border-radius:4px}
+.gfill{position:absolute;top:4px;bottom:4px;left:4px;border-radius:6px;background:var(--sig);transition:width .6s ease}
+.gscale{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:.68rem;color:var(--muted)}
+.gnote{font-size:.8rem;color:var(--muted)}
+.gnote i{display:inline-block;width:10px;height:10px;background:var(--win);opacity:.35;border-radius:2px;vertical-align:-1px;margin-right:4px}
+
+.card{display:flex;flex-direction:column;gap:12px}
+.stepnum{font-family:var(--f-mono);font-size:.78rem;color:var(--sig);letter-spacing:.06em}
+.card h2{font-family:var(--f-display);font-size:1.3rem;line-height:1.3;margin:.1rem 0 0;text-wrap:balance}
+.lanes{display:grid;gap:10px}
+@media (min-width:560px){.lanes{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.lane{border-radius:8px;padding:12px;background:var(--soft);min-width:0}
+.lane h3{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.lane h3 i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.lane.c h3 i{background:var(--ins)}
+.lane.t h3 i{background:var(--sub)}
+.lane .tag{font-family:var(--f-mono);font-size:.7rem;color:var(--muted);font-weight:500}
+.lane ul{margin:0;padding-left:1.1rem;font-size:.92rem;display:flex;flex-direction:column;gap:4px}
+.modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:var(--soft);padding:4px;border-radius:9px}
+.modes button{font-family:var(--f-display);font-weight:600;font-size:.85rem;line-height:1.25;border:0;border-radius:6px;padding:8px 6px;background:transparent;color:var(--muted);cursor:pointer}
+.modes button small{display:block;font-family:var(--f-body);font-weight:400;font-size:.7rem}
+.modes button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.modes button:focus-visible{outline:2px solid var(--sig);outline-offset:1px}
+.fit{display:grid;gap:6px;font-size:.88rem}
+@media (min-width:560px){.fit{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.fit div{padding:8px 10px;border:1px solid var(--line);border-radius:6px}
+.fit b{font-family:var(--f-display);display:block;font-size:.8rem;color:var(--muted)}
+.reflex{fill:none;stroke:var(--sig);stroke-width:2;opacity:0}
+.reflex.flash{animation:fl 1.2s ease-out infinite}
+@keyframes fl{0%{opacity:.9;r:6}100%{opacity:0;r:22}}
+.brainnote{font-size:.9rem;border-left:3px solid var(--neo);padding:4px 0 4px 12px}
+.brainnote b{font-family:var(--f-display);color:var(--neo)}
+.region{font-size:.88rem;min-height:2.6em;color:var(--muted)}
+.region b{font-family:var(--f-display);color:var(--ink)}
+
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+.controls button{font-family:var(--f-body);font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:7px 14px;cursor:pointer}
+.controls button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.controls button:focus-visible{outline:2px solid var(--sig);outline-offset:2px}
+
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-display);font-weight:600}
+td:first-child{color:var(--muted);white-space:nowrap}
+.box > h2{font-family:var(--f-display);font-size:1.15rem;margin:0 0 8px}
+.foot{font-size:.8rem;color:var(--muted);max-width:72ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">โมเดลประกอบการเรียน Brainspotting</div>
+    <h1>Focused Mindfulness และ Dual Attunement</h1>
+    <p class="lead">กระบวนการเกิดขึ้นสองฝั่งพร้อมกัน ผู้รับการบำบัดสังเกตประสบการณ์ภายในขณะตรึงสายตา ส่วนผู้บำบัดคง attunement ต่อผู้รับการบำบัด ไล่ดูทีละขั้นและสังเกตระดับการกระตุ้นเทียบกับ window of tolerance</p>
+  </header>
+
+  <div class="track" id="track"></div>
+
+  <div class="grid">
+    <div class="box fig">
+      <h2>สมองของผู้รับการบำบัด · แตะแต่ละส่วนเพื่อดูบทบาท</h2>
+      <svg viewBox="0 0 420 280" role="img" aria-label="แผนผังสมองของผู้รับการบำบัด">
+        <path class="outline" d="M78,150 C62,92 120,40 205,34 C292,28 372,72 380,138 C384,172 368,196 340,200 C318,203 300,196 286,204 C270,212 236,214 212,212 C170,209 132,206 108,192 C90,182 82,168 78,150 Z"/>
+        <path class="stem" d="M240,205 C238,230 242,256 250,272 L270,272 C272,252 270,228 268,205 Z"/>
+        <ellipse class="eye" cx="40" cy="140" rx="17" ry="11"/>
+        <circle class="pupil" id="pupil" cx="40" cy="140" r="5"/>
+        <path class="gaze" id="gaze" d="M57,140 L28,140"/>
+        <circle class="ptr" id="ptr" cx="12" cy="140" r="5"/>
+        <circle class="reflex" id="reflex" cx="40" cy="140" r="6"/>
+        <g id="nodes"></g>
+      </svg>
+      <div class="region" id="region">แตะวงกลมในภาพเพื่อดูบทบาทของบริเวณนั้นในขั้นตอนนี้</div>
+      <div class="gauge">
+        <div class="gtop"><b>ระดับการกระตุ้น (SUD)</b><span class="sud" id="sud">7</span></div>
+        <div class="gbar"><div class="gwin"></div><div class="gfill" id="gfill"></div></div>
+        <div class="gscale"><span>0</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10</span></div>
+        <div class="gnote" id="gnote"></div>
+      </div>
+    </div>
+
+    <div class="box card" aria-live="polite">
+      <div>
+        <div class="stepnum" id="stepnum"></div>
+        <h2 id="title"></h2>
+      </div>
+      <div class="modes" id="modes" role="tablist" aria-label="เทคนิคการหา brainspot" hidden></div>
+      <div class="lanes">
+        <div class="lane c"><h3><i></i>ผู้รับการบำบัด <span class="tag" id="ctag"></span></h3><ul id="client"></ul></div>
+        <div class="lane t"><h3><i></i>ผู้บำบัด <span class="tag" id="ttag"></span></h3><ul id="therapist"></ul></div>
+      </div>
+      <div class="fit" id="fit" hidden></div>
+      <div class="brainnote" id="brain"></div>
+      <div class="controls">
+        <button type="button" id="prev">← ก่อนหน้า</button>
+        <button type="button" id="next" class="primary">ถัดไป →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>สองกระบวนการที่เกิดขึ้นพร้อมกัน</h2>
+    <div class="tablebox"><table>
+      <tr><th></th><th>ผู้รับการบำบัด</th><th>ผู้บำบัด</th></tr>
+      <tr><td>กระบวนการ</td><td>Focused mindfulness</td><td>Dual attunement</td></tr>
+      <tr><td>ทิศทางความใส่ใจ</td><td>เข้าสู่ภายใน: กาย อารมณ์ ภาพ ความจำ</td><td>ออกสู่ผู้รับการบำบัด: สัมพันธภาพและสัญญาณทางกาย</td></tr>
+      <tr><td>สายตา</td><td>ตรึงไว้ที่ brainspot</td><td>สังเกต reflexive responses</td></tr>
+      <tr><td>ท่าที</td><td>สังเกตโดยไม่ชี้นำและไม่วิเคราะห์</td><td>ติดตามกระบวนการ (follow the process) และแทรกแซงน้อยที่สุด</td></tr>
+      <tr><td>เป้าหมาย</td><td>ให้ระบบประสาทประมวลผลจากภายใน</td><td>รักษาระดับการกระตุ้นให้อยู่ใน window of tolerance</td></tr>
+    </table></div>
+  </div>
+  <div class="box">
+    <h2>เทคนิคการหา brainspot</h2>
+    <div class="tablebox"><table>
+      <tr><th></th><th>Inside Window</th><th>Outside Window</th><th>Gazespot</th></tr>
+      <tr><td>ผู้ระบุ</td><td>ผู้รับการบำบัด</td><td>ผู้บำบัด</td><td>เกิดขึ้นเองจากสายตา</td></tr>
+      <tr><td>ข้อมูลที่ใช้</td><td>Felt sense และ SUD</td><td>Reflexive responses</td><td>ตำแหน่งที่สายตาหยุดเอง</td></tr>
+      <tr><td>ใช้ pointer</td><td>ใช้</td><td>ใช้</td><td>ไม่จำเป็น</td></tr>
+      <tr><td>อาศัย</td><td>Interoceptive awareness</td><td>การสังเกตของผู้บำบัด</td><td>Orienting โดยอัตโนมัติ</td></tr>
+      <tr><td>เหมาะกับ</td><td>ผู้ที่รับรู้ความรู้สึกในกายได้ดี</td><td>ผู้ที่มี dissociation, alexithymia หรือเด็ก</td><td>ช่วงต้นของการบำบัด หรือเมื่อ pointer ชี้นำเกินไป</td></tr>
+    </table></div>
+    <p class="foot" style="margin:10px 0 0">ในทางปฏิบัติมักใช้ร่วมกัน เช่น ใช้ Inside Window แล้วยืนยันด้วย Outside Window และทั้งสามเทคนิคใช้หา resource spot ได้เช่นกัน</p>
+  </div>
+  <p class="foot">กลไกทางประสาทในโมเดลนี้เป็นคำอธิบายเชิงทฤษฎีที่เสนอโดยผู้พัฒนาแนวทางและผู้ปฏิบัติ หลักฐานเชิงกลไกโดยตรงสำหรับ Brainspotting ยังมีจำกัด ค่า SUD ในโมเดลเป็นตัวอย่างประกอบ ไม่ใช่ค่ามาตรฐาน</p>
+</div>
+
+<script>
+const R={
+  pfc:{x:120,y:100,c:"var(--neo)",n:"Prefrontal cortex",lx:0,ly:-16},
+  ins:{x:190,y:128,c:"var(--ins)",n:"Insula",lx:0,ly:-14},
+  sc:{x:262,y:176,c:"var(--sub)",n:"Sup. colliculus",lx:14,ly:4,a:"start"},
+  amy:{x:160,y:184,c:"var(--sub)",n:"Amygdala",lx:-13,ly:4,a:"end"},
+  hip:{x:212,y:198,c:"var(--hip)",n:"Hippocampus",lx:0,ly:22},
+  bs:{x:256,y:240,c:"var(--sub)",n:"ก้านสมอง",lx:-14,ly:4,a:"end"}
+};
+const S=[
+ {short:"กระตุ้นประเด็น",title:"กำหนดประเด็นและกระตุ้น (activation)",sud:7,ptr:null,
+  ctag:"",ttag:"",
+  c:["นึกถึงประเด็นหรือเหตุการณ์ที่ต้องการทำงาน","ประเมินระดับความรุนแรงทางอารมณ์ 0–10 (SUD)"],
+  t:["ช่วยระบุประเด็นอย่างกระชับ โดยไม่เจาะรายละเอียดเชิงเล่าเรื่อง","บันทึกค่า SUD เป็นค่าตั้งต้น"],
+  brain:"การระลึกถึงประเด็นกระตุ้นเครือข่ายความจำ ทั้ง hippocampus และ amygdala พร้อมกับการตอบสนองของระบบประสาทอัตโนมัติผ่านก้านสมอง",
+  a:{pfc:60,ins:40,sc:15,amy:80,hip:65,bs:70},
+  r:{pfc:"ทำหน้าที่ดึงความจำขึ้นมาและประเมินระดับความรุนแรง",ins:"เริ่มรับรู้การเปลี่ยนแปลงภายในร่างกาย",sc:"ยังไม่มีบทบาทเด่นในขั้นนี้",amy:"ตอบสนองต่อเนื้อหาที่มีนัยสำคัญทางอารมณ์",hip:"ดึงองค์ประกอบของความจำขึ้นมา",bs:"เพิ่มการตื่นตัวของระบบประสาทอัตโนมัติ"}},
+ {short:"ระบุในร่างกาย",title:"ระบุตำแหน่งการกระตุ้นในร่างกาย (felt sense)",sud:7,ptr:null,
+  ctag:"interoception",ttag:"",
+  c:["สังเกตว่ารู้สึกถึงการกระตุ้นที่ส่วนใดของร่างกาย","อธิบายลักษณะความรู้สึก เช่น แน่น ร้อน หนัก"],
+  t:["ช่วยนำความใส่ใจจากเนื้อหาเชิงเล่าเรื่องเข้าสู่ร่างกาย","ใช้ตำแหน่งในร่างกายเป็นจุดยึด (anchor) ของกระบวนการ"],
+  brain:"ความใส่ใจต่อสัญญาณภายในร่างกาย (interoception) อาศัย insula เป็นหลัก ช่วยให้เข้าถึงองค์ประกอบ implicit ของความจำที่อาจไม่มีภาษาอธิบาย",
+  a:{pfc:55,ins:85,sc:15,amy:75,hip:50,bs:65},
+  r:{pfc:"ทำหน้าที่ใส่ใจและเรียกชื่อความรู้สึก",ins:"บูรณาการสัญญาณจากร่างกายเป็นการรับรู้ภายใน (felt sense)",sc:"ยังไม่มีบทบาทเด่นในขั้นนี้",amy:"ยังคงตอบสนองต่อประเด็นที่ถูกกระตุ้น",hip:"รักษาการเชื่อมโยงกับเนื้อหาของความจำ",bs:"สะท้อนการตื่นตัวทางกาย เช่น หัวใจเต้นเร็ว หายใจตื้น"}},
+ {short:"หา brainspot",title:"ค้นหาตำแหน่งตา (brainspot)",sud:8,ptr:"scan",
+  ctag:"",ttag:"neurobiological",
+  modes:[
+   {k:"Inside Window",s:"ผู้รับการบำบัดระบุ",ptr:"scan",reflex:false,ctag:"ผู้ระบุ",ttag:"",
+    c:["มองตาม pointer ที่เคลื่อนผ่านลานสายตาทั้งแนวนอนและแนวตั้ง","บอกตำแหน่งที่รู้สึกการกระตุ้นแรงที่สุด โดยอาศัยความรู้สึกภายในและค่า SUD"],
+    t:["เลื่อน pointer ช้าๆ ทีละแนว","ถามระดับความรู้สึกในแต่ละตำแหน่ง และยืนยันตำแหน่งที่ค่าสูงสุด"],
+    fit:"ผู้ที่รับรู้ความรู้สึกในร่างกายได้ดีและบอกระดับความรู้สึกได้ชัด",lim:"ใช้ได้ไม่ดีในผู้ที่มี dissociation หรือ alexithymia",
+    brain:"อาศัย interoceptive awareness ผ่าน insula และการประเมินของ prefrontal cortex ร่วมกับการประมวลผลตำแหน่งการมองของ superior colliculus",
+    a:{pfc:60,ins:90,sc:85,amy:80,hip:45,bs:70}},
+   {k:"Outside Window",s:"ผู้บำบัดสังเกต",ptr:"scan",reflex:true,ctag:"",ttag:"ผู้ระบุ",
+    c:["มองตาม pointer โดยไม่จำเป็นต้องบอกว่ารู้สึกอย่างไร","อาจไม่รับรู้ว่าร่างกายมีการตอบสนองที่ตำแหน่งใด"],
+    t:["เลื่อน pointer ช้าๆ และสังเกต reflexive responses","สัญญาณที่สังเกต เช่น การกระพริบตา ตากระตุก รูม่านตาเปลี่ยน การกลืน การหายใจเปลี่ยน การขยับร่างกาย"],
+    fit:"ผู้ที่รับรู้ความรู้สึกภายในได้น้อย ผู้ที่มี dissociation หรือเด็ก",lim:"ต้องอาศัยทักษะการสังเกตของผู้บำบัด และอาจตีความสัญญาณคลาดเคลื่อนได้",
+    brain:"Reflexive responses เกิดจากก้านสมองและระบบประสาทอัตโนมัติ โดยไม่ต้องผ่านการรับรู้อย่างมีสติ จึงใช้ได้แม้ insula และ prefrontal cortex เข้าถึงความรู้สึกได้จำกัด",
+    a:{pfc:35,ins:45,sc:85,amy:80,hip:40,bs:95}},
+   {k:"Gazespot",s:"สายตาหยุดเอง",ptr:"gaze",reflex:false,ctag:"",ttag:"",
+    c:["พูดถึงประเด็นตามปกติ ไม่มี pointer","สายตาไปหยุดที่จุดใดจุดหนึ่งเองโดยไม่ได้ตั้งใจ"],
+    t:["สังเกตตำแหน่งที่สายตาของผู้รับการบำบัดไปหยุดซ้ำๆ","ชวนให้มองค้างไว้ที่ตำแหน่งนั้น แล้วเข้าสู่ focused mindfulness"],
+    fit:"ช่วงต้นของการบำบัด หรือผู้ที่รู้สึกว่าการใช้ pointer ชี้นำเกินไป",lim:"ตำแหน่งที่ได้อาจไม่ใช่จุดที่การกระตุ้นแรงที่สุด",
+    brain:"อาศัยการหันเข้าหาสิ่งเร้าโดยอัตโนมัติ (orienting) ของ superior colliculus ซึ่งเกิดขึ้นเองขณะระลึกถึงประเด็น จึงเป็นวิธีที่แทรกแซงน้อยที่สุด",
+    a:{pfc:50,ins:65,sc:95,amy:75,hip:55,bs:65}}
+  ],
+  c:[],t:[],brain:"",
+  a:{pfc:45,ins:70,sc:90,amy:80,hip:45,bs:80},
+  r:{pfc:"ทำงานลดลงเล็กน้อยเมื่อการกระตุ้นสูงขึ้น",ins:"รับรู้การเปลี่ยนแปลงของความรู้สึกเมื่อสายตาเคลื่อนที่",sc:"ประมวลผลตำแหน่งการมองและการหันเข้าหาสิ่งเร้า สมมติฐานหลักของ BSP",amy:"ตอบสนองแรงขึ้นที่ตำแหน่งตาบางจุด",hip:"บทบาทลดลงชั่วคราว",bs:"เป็นแหล่งของ reflexive responses ที่ผู้บำบัดสังเกต"}},
+ {short:"ตรึงสายตา",title:"ตรึงสายตาและสังเกตภายใน (focused mindfulness)",sud:8,ptr:"fix",
+  ctag:"focused mindfulness",ttag:"dual attunement",
+  c:["มองค้างไว้ที่ brainspot","สังเกตสิ่งที่เกิดขึ้นภายในโดยไม่ชี้นำและไม่วิเคราะห์ ทั้งความรู้สึกทางกาย ภาพ ความจำ และอารมณ์"],
+  t:["อยู่ด้วยอย่างเงียบ มีท่าทีปลอดภัยและไม่ตัดสิน (relational attunement)","สังเกตสัญญาณทางกายของผู้รับการบำบัดอย่างต่อเนื่อง (neurobiological attunement)"],
+  brain:"Prefrontal cortex ทำหน้าที่เป็นผู้สังเกต (observer stance) ขณะที่ insula ติดตามสัญญาณภายใน การกระตุ้นจึงเกิดขึ้นได้โดยยังมีส่วนของสมองที่สังเกตอยู่",
+  a:{pfc:65,ins:85,sc:80,amy:75,hip:55,bs:70},
+  r:{pfc:"ทำหน้าที่ผู้สังเกต รักษาความใส่ใจที่ไม่ตัดสินไว้",ins:"ติดตามความรู้สึกทางกายที่เปลี่ยนแปลงไป",sc:"คงการตรึงตำแหน่งการมองไว้",amy:"ยังคงมีการกระตุ้น แต่อยู่ภายใต้การสังเกต",hip:"เริ่มเชื่อมเนื้อหาความจำเข้ากับประสบการณ์ปัจจุบัน",bs:"การตื่นตัวคงอยู่ในระดับที่ทนได้"}},
+ {short:"ประมวลผล",title:"การประมวลผลดำเนินไป",sud:5,ptr:"fix",
+  ctag:"follow the process",ttag:"uncertainty principle",
+  c:["ประสบการณ์ภายในเปลี่ยนแปลงไปเอง เช่น ความรู้สึกเคลื่อนที่ ภาพหรือความจำใหม่ผุดขึ้น","ระดับการกระตุ้นขึ้นลงเป็นช่วงๆ"],
+  t:["ติดตามกระบวนการ ไม่นำ ไม่ตีความ","ถามเป็นครั้งคราวสั้นๆ เช่น \"ตอนนี้สังเกตเห็นอะไร\""],
+  brain:"สมมติฐานคือเมื่อความจำถูกกระตุ้นขณะที่ prefrontal cortex และ hippocampus ยังทำงานได้ ความจำอาจเข้าสู่ reconsolidation และได้รับบริบทว่าเหตุการณ์สิ้นสุดลงแล้ว",
+  a:{pfc:75,ins:75,sc:70,amy:55,hip:80,bs:55},
+  r:{pfc:"ทำงานได้ดีขึ้น ช่วยกำกับการตอบสนองของ amygdala",ins:"รับรู้การเปลี่ยนแปลงของความรู้สึกทางกาย",sc:"คงการตรึงตำแหน่งการมองไว้",amy:"การตอบสนองลดลงเป็นลำดับ",hip:"ผนวกบริบทเวลาและสถานที่เข้ากับความจำ",bs:"การตื่นตัวลดลง"}},
+ {short:"กำกับระดับ",title:"รักษาระดับการกระตุ้นให้อยู่ใน window of tolerance",sud:9,sud2:5,ptr:"res",
+  ctag:"",ttag:"resource model",
+  c:["หากการกระตุ้นสูงเกินจนทนไม่ได้ อาจเกิดภาวะ hyperarousal หรือ dissociation","เปลี่ยนไปมองตำแหน่งที่รู้สึกสงบและมั่นคง (resource spot)"],
+  t:["สังเกตสัญญาณว่าเกิน window of tolerance เช่น หายใจถี่ ตัวแข็ง สีหน้าว่างเปล่า","ช่วยหาตำแหน่ง resource หรือตำแหน่งในร่างกายที่รู้สึกมั่นคง แล้วค่อยกลับสู่การประมวลผล"],
+  brain:"เมื่อการกระตุ้นสูงเกินไป prefrontal cortex และ hippocampus ทำงานลดลง (ดูโมเดล cortisol) การกลับมาอยู่ใน window of tolerance ทำให้ระบบเหล่านี้ทำงานได้อีกครั้ง",
+  a:{pfc:40,ins:60,sc:75,amy:90,hip:30,bs:90},
+  r:{pfc:"ทำงานลดลงเมื่อการกระตุ้นเกินระดับ จึงต้องอาศัยการกำกับร่วม (co-regulation) จากผู้บำบัด",ins:"รับรู้ความรู้สึกที่รุนแรง หรือเงียบลงหากเกิด dissociation",sc:"เปลี่ยนตำแหน่งการมองไปยัง resource spot",amy:"ตอบสนองสูงเกินระดับที่ทนได้",hip:"ถูกยับยั้งเมื่อการกระตุ้นสูง",bs:"การตื่นตัวสูง (hyperarousal) หรือภาวะหยุดนิ่ง (shutdown)"}},
+ {short:"ประเมินซ้ำ",title:"ประเมินซ้ำและปิดกระบวนการ",sud:2,ptr:null,
+  ctag:"",ttag:"",
+  c:["ประเมิน SUD อีกครั้ง","สังเกตความรู้สึกทางกายและมุมมองต่อประเด็นที่เปลี่ยนไป"],
+  t:["เปรียบเทียบ SUD กับค่าตั้งต้น","แจ้งว่ากระบวนการอาจดำเนินต่อหลังจบ session (tail of the comet) และวางแผนการดูแลตนเอง"],
+  brain:"ความจำถูกจัดเก็บกลับพร้อมบริบทใหม่ ประจุทางอารมณ์ลดลง และการเชื่อมต่อระหว่าง prefrontal cortex กับ amygdala ทำงานได้ดีขึ้น (สมมติฐาน)",
+  a:{pfc:80,ins:55,sc:20,amy:35,hip:70,bs:35},
+  r:{pfc:"ทำงานเต็มที่ ประเมินและให้ความหมายใหม่กับประสบการณ์",ins:"รับรู้ความรู้สึกทางกายที่ผ่อนคลายลง",sc:"สายตากลับสู่ภาวะปกติ",amy:"การตอบสนองต่อประเด็นลดลง",hip:"ความจำมีบริบทและป้ายเวลาที่ชัดเจนขึ้น",bs:"ระบบประสาทอัตโนมัติกลับสู่ภาวะสมดุล"}}
+];
+const NS="http://www.w3.org/2000/svg",$=i=>document.getElementById(i);
+let cur=0,sel=null,scanT=null;
+const nd={};
+for(const[k,r] of Object.entries(R)){
+  const g=document.createElementNS(NS,"g");g.setAttribute("class","node");g.setAttribute("tabindex","0");g.setAttribute("role","button");g.setAttribute("aria-label",r.n);
+  g.innerHTML=`<circle class="halo" cx="${r.x}" cy="${r.y}" fill="${r.c}" opacity=".18"/><circle class="core" cx="${r.x}" cy="${r.y}" fill="${r.c}"/><circle class="ring" cx="${r.x}" cy="${r.y}" r="26"/><text class="lbl" x="${r.x+r.lx}" y="${r.y+r.ly}" text-anchor="${r.a||"middle"}">${r.n}</text>`;
+  const act=()=>{sel=k;region()};
+  g.addEventListener("click",act);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();act()}});
+  $("nodes").appendChild(g);nd[k]=g;
+}
+S.forEach((s,i)=>{const b=document.createElement("button");b.type="button";b.innerHTML=`<b>${i+1}</b><span>${s.short}</span>`;b.setAttribute("aria-label",`ขั้นที่ ${i+1}: ${s.title}`);b.onclick=()=>go(i);$("track").appendChild(b)});
+
+function region(){
+  for(const k in nd)nd[k].classList.toggle("sel",k===sel);
+  $("region").innerHTML=sel?`<b>${R[sel].n}</b> · ${S[cur].r[sel]}`:"แตะวงกลมในภาพเพื่อดูบทบาทของบริเวณนั้นในขั้นตอนนี้";
+}
+function setSud(v){
+  $("sud").textContent=v;$("gfill").style.width=`calc(${v*10}% - 8px)`;
+  $("gfill").style.background=(v>7.5||v<2)?"var(--sig)":"var(--win)";
+  $("gnote").innerHTML=`<i></i>window of tolerance ` + (v>7.5?"· <b style=\"color:var(--sig)\">สูงเกินช่วงที่ทนได้</b>":"· อยู่ในช่วงที่ประมวลผลได้");
+}
+function setPtr(mode){
+  clearInterval(scanT);
+  const p=$("ptr"),pu=$("pupil"),gz=$("gaze");
+  if(!mode){p.style.opacity=0;gz.style.opacity=0;pu.setAttribute("cx",40);pu.setAttribute("cy",140);return}
+  p.style.opacity=1;gz.style.opacity=1;
+  const place=(y)=>{p.setAttribute("cx",12);p.setAttribute("cy",y);pu.setAttribute("cx",36);pu.setAttribute("cy",140+(y-140)*.12);gz.setAttribute("d",`M${36},${140+(y-140)*.12} L18,${y}`)};
+  if(mode==="gaze"){p.style.opacity=0;gz.style.opacity=0;pu.setAttribute("cx",35);pu.setAttribute("cy",136);return}
+  if(mode==="fix")place(120);
+  if(mode==="res")place(168);
+  if(mode==="scan"){
+    const ys=[100,120,140,160,180,160,140,120];let i=0;place(ys[0]);
+    if(!matchMedia("(prefers-reduced-motion: reduce)").matches)scanT=setInterval(()=>{i=(i+1)%ys.length;place(ys[i])},900);
+  }
+}
+let sudT=null,mode=0;
+function paint(v){
+  $("ctag").textContent=v.ctag?`· ${v.ctag}`:"";$("ttag").textContent=v.ttag?`· ${v.ttag}`:"";
+  $("client").innerHTML=v.c.map(x=>`<li>${x}</li>`).join("");
+  $("therapist").innerHTML=v.t.map(x=>`<li>${x}</li>`).join("");
+  $("brain").innerHTML=`<b>ในสมอง</b> ${v.brain}`;
+  for(const k in nd){const n=v.a[k];const[h,c]=nd[k].querySelectorAll("circle");h.setAttribute("r",8+n*.16);c.setAttribute("r",4+n*.08);c.setAttribute("opacity",.3+n/140);nd[k].classList.toggle("on",n>=70)}
+  setPtr(v.ptr);
+  $("reflex").classList.toggle("flash",!!v.reflex&&!matchMedia("(prefers-reduced-motion: reduce)").matches);
+  $("reflex").style.opacity=v.reflex?"":"0";
+  if(v.fit){$("fit").hidden=false;$("fit").innerHTML=`<div><b>เหมาะกับ</b>${v.fit}</div><div><b>ข้อจำกัด</b>${v.lim}</div>`}else $("fit").hidden=true;
+}
+function setMode(m){
+  mode=m;const s=S[cur];
+  [...$("modes").children].forEach((b,j)=>{b.classList.toggle("on",j===m);b.setAttribute("aria-selected",j===m)});
+  const v=s.modes[m];paint({...v,r:s.r});region();
+}
+function go(i){
+  cur=(i+S.length)%S.length;const s=S[cur];
+  [...$("track").children].forEach((b,j)=>b.classList.toggle("on",j===cur));
+  $("stepnum").textContent=`ขั้นที่ ${cur+1} / ${S.length}`;
+  $("title").textContent=s.title;
+  clearTimeout(sudT);setSud(s.sud);
+  if(s.sud2!=null)sudT=setTimeout(()=>setSud(s.sud2),1800);
+  if(s.modes){
+    $("modes").hidden=false;
+    $("modes").innerHTML=s.modes.map((m,j)=>`<button type="button" role="tab">${m.k}<small>${m.s}</small></button>`).join("");
+    [...$("modes").children].forEach((b,j)=>b.onclick=()=>setMode(j));
+    setMode(mode);
+  }else{
+    $("modes").hidden=true;paint(s);region();
+  }
+}
+$("prev").onclick=()=>go(cur-1);$("next").onclick=()=>go(cur+1);
+document.addEventListener("keydown",e=>{if(e.target.closest&&e.target.closest("button,.node"))return;if(e.key==="ArrowRight")go(cur+1);if(e.key==="ArrowLeft")go(cur-1)});
+go(0);
+</script>
+
+</body>
+</html>
