@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>เส้นทางความจำในสมอง</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: schematic brain (sticky) beside a step card; stages track on top; tap regions for function notes */
+:root{
+  --bg:#F3F4F8; --surface:#FFFFFF; --ink:#1A1D2B; --muted:#5C6178; --line:#D9DCE6; --soft:#E8EAF2;
+  --neo:#5553C9; --sub:#B8661A; --hip:#0F8276; --sig:#D23C67; --input:#6B7088;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11131B; --surface:#1A1D28; --ink:#E8EAF2; --muted:#9AA0B8; --line:#2C3040; --soft:#232737;
+  --neo:#9493F2; --sub:#E79A4A; --hip:#3CC0B0; --sig:#FF6F93; --input:#9AA0B8; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11131B; --surface:#1A1D28; --ink:#E8EAF2; --muted:#9AA0B8; --line:#2C3040; --soft:#232737;
+  --neo:#9493F2; --sub:#E79A4A; --hip:#3CC0B0; --sig:#FF6F93; --input:#9AA0B8; color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.7}
+.wrap{max-width:1100px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:18px}
+header h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.5rem,4.5vw,2.2rem);line-height:1.25;margin:0;text-wrap:balance}
+header p{margin:.35rem 0 0;color:var(--muted);max-width:62ch}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* stage track */
+.track{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.stage{padding:8px 10px;border-radius:6px;background:var(--soft);color:var(--muted);font-size:.78rem;line-height:1.35;transition:background .3s,color .3s}
+.stage b{display:block;font-family:var(--f-display);font-size:.9rem;color:inherit}
+.stage.on{background:var(--ink);color:var(--bg)}
+
+.grid{display:grid;gap:18px}
+@media (min-width:880px){.grid{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:start}.fig{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}}
+
+.fig{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 10px 12px}
+svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted);padding:4px 6px 0}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* svg elements */
+.outline{fill:var(--soft);stroke:var(--neo);stroke-width:7;stroke-opacity:.28;cursor:pointer;transition:stroke-opacity .3s}
+.outline.on{stroke-opacity:.75}
+.cb-shape{fill:var(--soft);stroke:var(--line);stroke-width:1.5}
+.stem{fill:var(--soft);stroke:var(--line);stroke-width:1.5}
+.node{cursor:pointer}
+.node circle.dot{stroke:var(--surface);stroke-width:2;opacity:.45;transition:opacity .3s,r .3s}
+.node.on circle.dot{opacity:1}
+.node text{font-family:var(--f-body);font-size:11px;fill:var(--muted);transition:fill .3s}
+.node.on text{fill:var(--ink);font-weight:600}
+.node.sel circle.ring{opacity:1}
+.ring{fill:none;stroke:var(--ink);stroke-width:1.5;opacity:0}
+.node:focus{outline:none}
+.node:focus-visible circle.ring{opacity:1;stroke-dasharray:3 2}
+.hipshape{fill:none;stroke:var(--hip);stroke-width:9;stroke-linecap:round;opacity:.35;cursor:pointer;transition:opacity .3s}
+.hipshape.on{opacity:.9}
+.flow{fill:none;stroke:var(--sig);stroke-width:2;stroke-dasharray:4 5;opacity:.75}
+.pulse{fill:var(--sig)}
+
+/* panel */
+.panel{display:flex;flex-direction:column;gap:14px;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
+.stepnum{font-family:var(--f-mono);font-size:.78rem;color:var(--sig);letter-spacing:.06em}
+.card h2{font-family:var(--f-display);font-size:1.35rem;line-height:1.3;margin:.15rem 0 .5rem;text-wrap:balance}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.chip{font-size:.75rem;padding:2px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.chip.g-neocortex{border-color:var(--neo);color:var(--neo)}
+.chip.g-subcortex{border-color:var(--sub);color:var(--sub)}
+.chip.g-hippocampus{border-color:var(--hip);color:var(--hip)}
+.body p{margin:0 0 .6rem;max-width:65ch}
+.body ul{margin:.2rem 0 .6rem;padding-left:1.2rem}
+.body li{margin-bottom:.25rem}
+.bsp{margin-top:10px;padding:10px 12px;border-left:3px solid var(--sig);background:var(--soft);border-radius:0 6px 6px 0;font-size:.9rem}
+.bsp b{font-family:var(--f-display);display:block;font-size:.85rem;color:var(--sig)}
+
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+button{font-family:var(--f-body);font-size:.9rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:7px 14px;cursor:pointer}
+button:hover{border-color:var(--ink)}
+button:focus-visible{outline:2px solid var(--sig);outline-offset:2px}
+button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.dots{display:flex;flex-wrap:wrap;gap:4px}
+.dots button{width:30px;height:30px;padding:0;font-family:var(--f-mono);font-size:.75rem;border-radius:50%}
+.dots button.on{background:var(--sig);border-color:var(--sig);color:#fff}
+
+.region h3{font-family:var(--f-display);font-size:1.1rem;margin:0 0 .3rem}
+.region .hint{color:var(--muted);font-size:.85rem;margin:0 0 .6rem}
+.region .focus{padding:8px 10px;background:var(--soft);border-radius:6px;margin-bottom:10px;font-size:.92rem}
+
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+.tablebox{overflow-x:auto}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-display);font-weight:600}
+td:first-child{color:var(--muted);white-space:nowrap}
+.foot{font-size:.8rem;color:var(--muted);max-width:70ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">โมเดลประกอบการเรียน Brainspotting</div>
+    <h1>จากสัญญาณประสาท สู่ความจำระยะยาว</h1>
+    <p>กดถัดไปเพื่อไล่ทีละขั้น เส้นประสีชมพูคือทิศทางสัญญาณ แตะบริเวณใดในภาพเพื่ออ่านหน้าที่ของส่วนนั้น ภาพเป็นแผนผังอย่างง่าย ตำแหน่งไม่ตรงกายวิภาคจริงทุกจุด</p>
+  </header>
+
+  <div class="track" id="track">
+    <div class="stage" data-s="sensory"><b>Sensory register</b>&lt; 1–4 วินาที</div>
+    <div class="stage" data-s="stm"><b>STM / Working memory</b>~15–30 วินาที</div>
+    <div class="stage" data-s="cons"><b>Consolidation</b>ชั่วโมง – ปี</div>
+    <div class="stage" data-s="ltm"><b>LTM</b>ปี – ตลอดชีวิต</div>
+  </div>
+
+  <div class="grid">
+    <div class="fig">
+      <svg id="brain" viewBox="0 0 420 290" role="img" aria-label="แผนผังสมองแสดงเส้นทางสัญญาณ">
+        <path id="cortex" class="outline" tabindex="0" d="M78,150 C62,92 120,40 205,34 C292,28 372,72 380,138 C384,172 368,196 340,200 C318,203 300,196 286,204 C270,212 236,214 212,212 C170,209 132,206 108,192 C90,182 82,168 78,150 Z"/>
+        <ellipse class="cb-shape" cx="322" cy="228" rx="42" ry="22"/>
+        <path class="stem" d="M240,205 C238,230 242,256 250,276 L270,276 C272,252 270,228 268,205 Z"/>
+        <path id="hipshape" class="hipshape" d="M182,206 C196,214 216,206 230,196 C238,190 246,190 250,196"/>
+        <g id="flows"></g>
+        <g id="pulses"></g>
+        <g id="nodes"></g>
+      </svg>
+      <div class="legend">
+        <span><i style="background:var(--neo)"></i>Neocortex</span>
+        <span><i style="background:var(--sub)"></i>Subcortex</span>
+        <span><i style="background:var(--hip)"></i>Hippocampus</span>
+        <span><i style="background:var(--input)"></i>อินพุต / อื่นๆ</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="card" id="stepcard" aria-live="polite">
+        <div class="stepnum" id="stepnum"></div>
+        <h2 id="steptitle"></h2>
+        <div class="chips" id="stepchips"></div>
+        <div class="body" id="stepbody"></div>
+      </div>
+      <div class="controls">
+        <button id="prev" type="button">← ก่อนหน้า</button>
+        <button id="next" class="primary" type="button">ถัดไป →</button>
+        <button id="play" type="button">▶ เล่นอัตโนมัติ</button>
+      </div>
+      <div class="dots" id="dots" aria-label="เลือกขั้นตอน"></div>
+      <div class="card region" id="region"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">STM กับ LTM ต่างกันอย่างไร</h2>
+    <div class="tablebox"><table>
+      <tr><th></th><th>STM / Working memory</th><th>LTM</th></tr>
+      <tr><td>ความจุ</td><td>จำกัด ราว 4 ก้อนข้อมูล</td><td>แทบไม่จำกัด</td></tr>
+      <tr><td>ระยะเวลา</td><td>วินาที ถ้าไม่ทวน</td><td>หลายปีถึงตลอดชีวิต</td></tr>
+      <tr><td>กลไกหลัก</td><td>การยิงสัญญาณต่อเนื่องในวงจร prefrontal–parietal</td><td>โครงสร้างไซแนปส์เปลี่ยนถาวร (LTP, โปรตีนใหม่)</td></tr>
+      <tr><td>บริเวณหลัก</td><td>Prefrontal cortex</td><td>Neocortex ทั่วไป, hippocampus (ช่วงแรก), basal ganglia, cerebellum, amygdala</td></tr>
+      <tr><td>เสียได้ง่าย</td><td>ถูกรบกวนหรือเปลี่ยนความสนใจ</td><td>ค่อนข้างคงทน แต่เปิดแก้ไขได้เมื่อถูกดึงกลับมา</td></tr>
+    </table></div>
+  </div>
+  <p class="foot">ตัวเลขเวลาเป็นค่าโดยประมาณจากงานวิจัยด้านจิตวิทยาการรู้คิดและประสาทวิทยา ส่วนที่เชื่อมโยงกับ Brainspotting เป็นคำอธิบายเชิงทฤษฎีที่ผู้พัฒนาแนวทางเสนอไว้ หลักฐานเชิงกลไกโดยตรงยังจำกัด</p>
+</div>
+
+<script>
+const G = {
+  neocortex:{name:"นีโอคอร์เท็กซ์ (Neocortex)",color:"var(--neo)",info:`<p>เปลือกสมองชั้นนอก 6 ชั้น ส่วนที่วิวัฒนาการมาล่าสุด</p><ul>
+    <li><b>Primary sensory cortex</b> รับและแยกองค์ประกอบพื้นฐานของสัญญาณ</li>
+    <li><b>Association cortex</b> รวมข้อมูลหลายช่องทางให้เป็นความหมาย</li>
+    <li><b>Prefrontal cortex</b> ความสนใจ working memory การวางแผน และกำกับอารมณ์จากบนลงล่าง (ลดการทำงานของ amygdala)</li>
+    <li><b>คลังความจำระยะยาว</b> ความรู้และรายละเอียดของประสบการณ์ถูกเก็บกระจายในบริเวณเดียวกับที่เคยประมวลผลมัน</li></ul>`},
+  subcortex:{name:"สมองส่วนใต้เปลือก (Subcortex)",color:"var(--sub)",info:`<p>กลุ่มโครงสร้างที่อยู่ลึกใต้เปลือกสมอง ทำงานเร็ว อัตโนมัติ และส่วนใหญ่อยู่นอกการรับรู้</p><ul>
+    <li><b>Thalamus</b> สถานีส่งต่อและกรองสัญญาณรับความรู้สึก</li>
+    <li><b>Amygdala</b> ตรวจจับภัยและความสำคัญทางอารมณ์ ติดป้ายอารมณ์ให้ความจำ</li>
+    <li><b>Basal ganglia</b> นิสัย ทักษะ ความจำเชิงกระบวนการ</li>
+    <li><b>Superior colliculus</b> การหันตาและศีรษะเข้าหาสิ่งเร้า</li>
+    <li><b>Brainstem และ hypothalamus</b> การตื่นตัว ระบบประสาทอัตโนมัติ ฮอร์โมนความเครียด</li></ul>
+    <p style="color:var(--muted);font-size:.85rem">ฮิปโปแคมปัสอยู่ในสมองกลีบขมับส่วนใน มักจัดอยู่ในระบบลิมบิกร่วมกับอะมิกดาลา ในโมเดลนี้แยกออกมาเพราะบทบาทต่อความจำโดดเด่น</p>`},
+  hippocampus:{name:"ฮิปโปแคมปัส (Hippocampus)",color:"var(--hip)",info:`<p>โครงสร้างรูปม้าน้ำในสมองกลีบขมับส่วนใน มีทั้งสองซีก</p><ul>
+    <li>ผูกองค์ประกอบของเหตุการณ์เข้าด้วยกันเป็นความจำแบบ episodic</li>
+    <li>ใส่บริบท "ที่ไหน เมื่อไร" (place cells, time cells) จึงทำให้รู้ว่าเหตุการณ์ <i>จบไปแล้ว</i></li>
+    <li>ทำหน้าที่เหมือนดัชนีชี้ไปยังชิ้นส่วนที่เก็บในเปลือกสมอง และเล่นซ้ำตอนหลับเพื่อย้ายความจำ</li>
+    <li>ไวต่อ cortisol ความเครียดสูงมากหรือเรื้อรังทำให้การเข้ารหัสบกพร่อง</li>
+    <li>ผู้ป่วย H.M. ที่ถูกตัดฮิปโปแคมปัสสองข้าง สร้างความจำเหตุการณ์ใหม่ไม่ได้ แต่ยังเรียนรู้ทักษะใหม่ได้</li></ul>`},
+  input:{name:"อินพุตและโครงสร้างอื่น",color:"var(--input)",info:`<p>ตัวรับความรู้สึกเป็นจุดเริ่มต้นของสัญญาณ ส่วนสมองน้อย (cerebellum) อยู่นอกทั้งเปลือกสมองและกลุ่ม subcortex แบบดั้งเดิม แต่มีบทบาทในความจำเชิงกระบวนการและการเรียนรู้แบบมีเงื่อนไขบางชนิด</p>`}
+};
+
+const N = {
+  eye:{x:40,y:140,g:"input",label:"ตา / ตัวรับ",lx:-2,ly:24,a:"middle",note:"ตัวรับแปลงพลังงานแสง เสียง แรงกด เป็นสัญญาณไฟฟ้า"},
+  pfc:{x:112,y:112,g:"neocortex",label:"Prefrontal",lx:0,ly:-14,a:"middle",note:"ถือข้อมูลใน working memory คุมความสนใจ สั่งค้นความจำ และกำกับอารมณ์"},
+  assoc:{x:250,y:76,g:"neocortex",label:"Association cortex",lx:0,ly:-14,a:"middle",note:"รวมข้อมูลจากหลายประสาทสัมผัสให้เป็นความหมาย และเป็นที่เก็บความจำระยะยาว"},
+  vis:{x:350,y:140,g:"neocortex",label:"V1 (การเห็น)",lx:0,ly:-14,a:"middle",note:"Primary visual cortex ที่ท้ายทอย แยกเส้น สี การเคลื่อนไหว"},
+  thal:{x:215,y:148,g:"subcortex",label:"Thalamus",lx:12,ly:4,a:"start",note:"สถานีส่งต่อ สัญญาณทุกชนิดยกเว้นกลิ่นต้องผ่านที่นี่"},
+  bg:{x:168,y:128,g:"subcortex",label:"Basal ganglia",lx:0,ly:-12,a:"middle",note:"เก็บนิสัยและทักษะ เช่น การขี่จักรยาน"},
+  sc:{x:258,y:176,g:"subcortex",label:"Sup. colliculus",lx:12,ly:4,a:"start",note:"ในสมองส่วนกลาง สั่งการหันตาและศีรษะเข้าหาสิ่งเร้า"},
+  amyg:{x:156,y:188,g:"subcortex",label:"Amygdala",lx:-12,ly:4,a:"end",note:"ประเมินภัยและความสำคัญ ติดป้ายอารมณ์ให้ความจำ"},
+  hip:{x:212,y:206,g:"hippocampus",label:"Hippocampus",lx:0,ly:22,a:"middle",note:"ผูกองค์ประกอบของเหตุการณ์พร้อมบริบทเวลาและสถานที่"},
+  bs:{x:255,y:250,g:"subcortex",label:"ก้านสมอง",lx:-14,ly:4,a:"end",note:"การตื่นตัว (locus coeruleus หลั่ง noradrenaline) และระบบประสาทอัตโนมัติ"},
+  cb:{x:328,y:230,g:"input",label:"Cerebellum",lx:0,ly:30,a:"middle",note:"สมองน้อย ความจำการเคลื่อนไหวและจังหวะ"}
+};
+
+const S = [
+ {title:"รับสัญญาณที่ตัวรับ",stage:"sensory",time:"มิลลิวินาที",paths:[["eye","thal"]],on:["eye"],
+  body:`<p>ตัวรับความรู้สึก (เรตินา คอเคลีย ผิวหนัง กล้ามเนื้อ อวัยวะภายใน) แปลงพลังงานจากภายนอกเป็นศักย์ไฟฟ้า เรียกว่า <b>transduction</b></p><p>ข้อมูลค้างอยู่ใน <b>sensory register</b> ชั่วครู่ ภาพราว 0.25–0.5 วินาที เสียงราว 2–4 วินาที ส่วนใหญ่จางหายไปเองถ้าไม่ได้รับความสนใจ</p>`},
+ {title:"ทาลามัส: สถานีส่งต่อและทางลัด",stage:"sensory",time:"~10–20 มิลลิวินาที",paths:[["eye","thal","vis"],["thal","amyg"]],on:["thal","amyg","vis"],
+  body:`<p>สัญญาณเกือบทุกประเภท (ยกเว้นกลิ่น) ผ่านทาลามัสก่อนไปเปลือกสมอง ทาลามัสกรองและเลือกว่าอะไรควรส่งต่อ</p><p>มีสองเส้นทางพร้อมกัน <b>ทางสูง</b> ไปเปลือกสมอง ช้ากว่าแต่ละเอียด และ <b>ทางต่ำ</b> ตรงไปอะมิกดาลา เร็วแต่หยาบ ร่างกายจึงสะดุ้งหรือเกร็งก่อนที่เราจะรู้ตัวว่าเห็นอะไร (แนวคิดของ Joseph LeDoux)</p>`},
+ {title:"การหันเข้าหาสิ่งเร้า (orienting)",stage:"sensory",time:"~100–200 มิลลิวินาที",paths:[["eye","sc","bs"]],on:["sc","bs","eye"],
+  body:`<p><b>Superior colliculus</b> ในสมองส่วนกลางรับภาพจากเรตินาโดยตรงด้วย มันสั่งให้ตาและศีรษะหันไปยังสิ่งที่ดูสำคัญ และเชื่อมกับก้านสมองซึ่งคุมการตื่นตัวและระบบประสาทอัตโนมัติ</p><p>การหันเข้าหานี้เกิดได้โดยไม่ผ่านการคิดของเปลือกสมอง</p>`,
+  bsp:`Brainspotting (David Grand) ตั้งต้นจากแนวคิดว่า "where you look affects how you feel" และเสนอ superior colliculus เป็นกลไกเชื่อมตำแหน่งตากับการทำงานของสมองส่วนลึก ข้อนี้ยังเป็นสมมติฐาน งานวิจัยเชิงกลไกโดยตรงยังมีน้อย`},
+ {title:"เปลือกสมองรับรู้และตีความ",stage:"sensory",time:"~100–500 มิลลิวินาที",paths:[["vis","assoc"]],on:["vis","assoc"],
+  body:`<p><b>Primary sensory cortex</b> (เช่น V1 ที่ท้ายทอย) แยกองค์ประกอบพื้นฐาน เช่น เส้น สี การเคลื่อนไหว</p><p>จากนั้น <b>association cortex</b> รวมเป็นสิ่งที่มีความหมาย เช่น "นี่คือใบหน้าของแม่" การตีความนี้ดึงความรู้เดิมจาก LTM มาใช้ตลอดเวลา การรับรู้จึงถูกปรุงด้วยประสบการณ์ในอดีตเสมอ</p>`},
+ {title:"ความสนใจพาเข้าสู่ STM",stage:"stm",time:"~15–30 วินาที ถ้าไม่ทวน",paths:[["assoc","pfc"]],on:["pfc","assoc"],
+  body:`<p>เฉพาะสิ่งที่ได้รับความสนใจจึงเข้าสู่ความจำระยะสั้น <b>Prefrontal cortex</b> ถือข้อมูลไว้และจัดการกับมัน เรียกว่า <b>working memory</b></p><p>จุได้ราว 4 ก้อนข้อมูล (chunk) การทวนซ้ำช่วยยืดเวลา แต่การทวนอย่างเดียวไม่ได้ทำให้เข้า LTM ได้ดีเท่าการเชื่อมโยงกับความหมาย อารมณ์ หรือความรู้เดิม</p>`},
+ {title:"อะมิกดาลาติดป้ายอารมณ์",stage:"stm",time:"วินาที – นาที",paths:[["amyg","hip"],["bs","amyg"]],on:["amyg","bs","hip"],
+  body:`<p>อะมิกดาลาประเมินว่าเหตุการณ์สำคัญหรืออันตรายแค่ไหน ถ้าใช่ ระบบจะหลั่ง <b>noradrenaline</b> (จากก้านสมอง) และ <b>cortisol</b> ซึ่งเสริมการบันทึกของฮิปโปแคมปัส เหตุการณ์ที่มีอารมณ์จึงจำได้ชัดกว่า</p><p>แต่เมื่อความเครียดสูงมาก ฮิปโปแคมปัสทำงานลดลง ขณะที่อะมิกดาลาทำงานมากขึ้น ความจำจึงอาจเป็นชิ้นส่วน ขาดบริบทเวลาและสถานที่ ส่วนความรู้สึกทางกายและอารมณ์ยังถูกเก็บไว้แน่น</p>`,
+  bsp:`นี่เป็นเหตุผลที่ความจำบาดแผลมักกลับมาเป็นความรู้สึกในร่างกาย (felt sense) ที่ไม่มีเรื่องราวชัดเจน และรู้สึกเหมือนเกิดขึ้น "ตอนนี้" Brainspotting ใช้ระดับการกระตุ้นในร่างกายนี้เป็นจุดตั้งต้นในการหาตำแหน่งตา`},
+ {title:"ฮิปโปแคมปัสเข้ารหัส",stage:"cons",time:"นาที – ชั่วโมง",paths:[["pfc","hip"],["assoc","hip"],["vis","hip"]],on:["hip","pfc","assoc","vis"],
+  body:`<p>ฮิปโปแคมปัสผูกองค์ประกอบที่กระจายอยู่ทั่วเปลือกสมอง (ภาพ เสียง ความหมาย อารมณ์) ให้เป็นเหตุการณ์เดียว พร้อมบริบท "ที่ไหน เมื่อไร"</p><p>ไซแนปส์ที่ทำงานพร้อมกันแข็งแรงขึ้นผ่าน <b>long-term potentiation (LTP)</b> และการสร้างโปรตีนใหม่ในเวลาหลายชั่วโมง เรียกว่า <b>synaptic consolidation</b></p>`},
+ {title:"การนอนหลับย้ายความจำสู่เปลือกสมอง",stage:"cons",time:"คืนแรก – หลายเดือนหรือปี",paths:[["hip","assoc"],["hip","pfc"],["hip","vis"]],on:["hip","assoc","pfc","vis"],
+  body:`<p>ระหว่างหลับลึก (slow-wave sleep) ฮิปโปแคมปัส <b>เล่นซ้ำ</b> รูปแบบการทำงานของเหตุการณ์ในจังหวะ sharp-wave ripple ประสานกับ sleep spindle ของเปลือกสมอง ช่วงหลับฝัน (REM) มีบทบาทกับการประมวลความจำทางอารมณ์</p><p>เมื่อเล่นซ้ำหลายคืน เปลือกสมองสร้างการเชื่อมโยงของตัวเอง เรียกว่า <b>systems consolidation</b> ความรู้แบบ semantic พึ่งฮิปโปแคมปัสน้อยลงเรื่อยๆ ส่วนรายละเอียดเหตุการณ์ที่ชัดเจนอาจยังต้องใช้ฮิปโปแคมปัส</p>`},
+ {title:"ความจำระยะยาวแต่ละชนิด",stage:"ltm",time:"ปี – ตลอดชีวิต",paths:[["hip","assoc"],["bg","cb"]],on:["assoc","pfc","hip","bg","cb","amyg"],
+  body:`<p><b>Explicit (declarative)</b> นึกถึงได้และเล่าได้</p><ul><li><b>Episodic</b> เหตุการณ์ของตัวเอง: hippocampus + neocortex</li><li><b>Semantic</b> ความรู้ ข้อเท็จจริง: neocortex กลีบขมับ</li></ul><p><b>Implicit (non-declarative)</b> แสดงออกทางพฤติกรรมและร่างกาย ไม่ต้องนึก</p><ul><li><b>Procedural</b> ทักษะ นิสัย: basal ganglia, cerebellum</li><li><b>Emotional conditioning</b> ความกลัวที่ถูกวางเงื่อนไข: amygdala</li><li><b>Priming</b> การรับรู้ที่เร็วขึ้นจากการเคยเจอ: neocortex</li></ul>`},
+ {title:"ดึงความจำกลับมา และบันทึกใหม่",stage:"ltm",time:"เปิดแก้ไขได้ราว 1–6 ชม. หลังถูกกระตุ้น*",paths:[["pfc","hip","assoc"],["hip","amyg"]],on:["pfc","hip","assoc","amyg"],
+  body:`<p>การระลึกคือการ <b>สร้างความจำขึ้นใหม่</b> ไม่ใช่การเปิดไฟล์เดิม Prefrontal cortex สั่งค้น ฮิปโปแคมปัสดึงชิ้นส่วนจากเปลือกสมองกลับมารวมกัน</p><p>เมื่อความจำถูกกระตุ้น มันกลับมาอยู่ในสภาพเปลี่ยนแปลงได้ชั่วคราว ก่อนถูกเก็บกลับอีกครั้ง เรียกว่า <b>reconsolidation</b> <span style="color:var(--muted);font-size:.85rem">(*ตัวเลขจากงานทดลองในสัตว์ ในมนุษย์ยังไม่แน่ชัด)</span></p>`,
+  bsp:`แนวคิดนี้ถูกใช้อธิบายการบำบัดความจำบาดแผลหลายแบบ รวมถึง Brainspotting: กระตุ้นความจำขึ้นมาขณะที่มีประสบการณ์ใหม่ที่ปลอดภัย (dual attunement ระหว่างผู้บำบัดกับการตั้งใจรับรู้ภายในของผู้รับการบำบัด) ความจำที่ถูกเก็บกลับจึงอาจมีประจุอารมณ์ลดลง นี่เป็นกลไกที่เสนอ ยังไม่ได้พิสูจน์เฉพาะสำหรับ Brainspotting`}
+];
+
+const svgNS="http://www.w3.org/2000/svg";
+const $=id=>document.getElementById(id);
+let cur=0, sel=null, playing=null;
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// build nodes
+const nodeEls={};
+for(const [k,n] of Object.entries(N)){
+  const g=document.createElementNS(svgNS,"g");
+  g.setAttribute("class","node");g.setAttribute("tabindex","0");g.setAttribute("role","button");
+  g.setAttribute("aria-label",n.label);
+  const r=k==="hip"?7:9;
+  g.innerHTML=`<circle class="ring" cx="${n.x}" cy="${n.y}" r="${r+5}"/><circle class="dot" cx="${n.x}" cy="${n.y}" r="${r}" fill="${G[n.g].color}"/><text x="${n.x+n.lx}" y="${n.y+n.ly}" text-anchor="${n.a}">${n.label}</text>`;
+  g.addEventListener("click",()=>pick(k));
+  g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(k)}});
+  $("nodes").appendChild(g);nodeEls[k]=g;
+}
+$("cortex").addEventListener("click",()=>pick("__neo"));
+$("cortex").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pick("__neo")}});
+$("hipshape").addEventListener("click",()=>pick("hip"));
+
+// dots
+S.forEach((s,i)=>{const b=document.createElement("button");b.type="button";b.textContent=i+1;b.setAttribute("aria-label",`ขั้นที่ ${i+1}: ${s.title}`);b.onclick=()=>{stop();go(i)};$("dots").appendChild(b)});
+
+function pick(k){sel=k;renderRegion();renderSel()}
+function renderSel(){for(const [k,el] of Object.entries(nodeEls))el.classList.toggle("sel",k===sel)}
+
+function renderRegion(){
+  const s=S[cur];
+  let gk,focus="";
+  if(sel==="__neo"){gk="neocortex";focus=`<div class="focus">เปลือกสมองทั้งแผ่น (ขอบสีม่วงในภาพ)</div>`}
+  else if(sel&&N[sel]){gk=N[sel].g;focus=`<div class="focus"><b>${N[sel].label}</b> ${N[sel].note}</div>`}
+  else{gk=N[s.on[0]].g}
+  const grp=G[gk];
+  $("region").innerHTML=`<p class="hint">${sel?"บริเวณที่เลือก":"แตะจุดหรือขอบสมองในภาพเพื่อดูหน้าที่"}</p>${focus}<h3 style="color:${grp.color}">${grp.name}</h3><div class="body">${grp.info}</div>`;
+}
+
+let flowPaths=[];
+function go(i){
+  cur=(i+S.length)%S.length;const s=S[cur];
+  $("stepnum").textContent=`ขั้นที่ ${cur+1} / ${S.length}`;
+  $("steptitle").textContent=s.title;
+  const groups=[...new Set(s.on.map(k=>N[k].g).filter(g=>g!=="input"))];
+  $("stepchips").innerHTML=`<span class="chip">⏱ ${s.time}</span>`+groups.map(g=>`<span class="chip g-${g}">${G[g].name.split(" (")[1]?.replace(")","")||g}</span>`).join("");
+  $("stepbody").innerHTML=s.body+(s.bsp?`<div class="bsp"><b>เชื่อมกับ Brainspotting</b>${s.bsp}</div>`:"");
+  document.querySelectorAll(".stage").forEach(el=>el.classList.toggle("on",el.dataset.s===s.stage));
+  for(const [k,el] of Object.entries(nodeEls))el.classList.toggle("on",s.on.includes(k));
+  $("cortex").classList.toggle("on",s.on.some(k=>N[k].g==="neocortex"));
+  $("hipshape").classList.toggle("on",s.on.includes("hip"));
+  [...$("dots").children].forEach((b,j)=>b.classList.toggle("on",j===cur));
+  // flows
+  $("flows").innerHTML="";$("pulses").innerHTML="";flowPaths=[];
+  s.paths.forEach(p=>{
+    const d=p.map((k,j)=>`${j?"L":"M"}${N[k].x},${N[k].y}`).join(" ");
+    const path=document.createElementNS(svgNS,"path");path.setAttribute("d",d);path.setAttribute("class","flow");
+    $("flows").appendChild(path);
+    const len=path.getTotalLength();const dots=[];
+    if(!reduce){for(let q=0;q<2;q++){const c=document.createElementNS(svgNS,"circle");c.setAttribute("r","4");c.setAttribute("class","pulse");$("pulses").appendChild(c);dots.push(c)}}
+    flowPaths.push({path,len,dots});
+  });
+  sel=null;renderSel();renderRegion();
+}
+
+let t0=performance.now();
+function tick(now){
+  const t=(now-t0)/1000;
+  for(const f of flowPaths){f.dots.forEach((c,q)=>{const pos=((t*70+q*f.len/2)%f.len);const pt=f.path.getPointAtLength(pos);c.setAttribute("cx",pt.x);c.setAttribute("cy",pt.y)})}
+  requestAnimationFrame(tick);
+}
+if(!reduce)requestAnimationFrame(tick);
+
+function stop(){if(playing){clearInterval(playing);playing=null;$("play").textContent="▶ เล่นอัตโนมัติ"}}
+$("prev").onclick=()=>{stop();go(cur-1)};
+$("next").onclick=()=>{stop();go(cur+1)};
+$("play").onclick=()=>{if(playing){stop();return}playing=setInterval(()=>go(cur+1),9000);$("play").textContent="❚❚ หยุด"};
+document.addEventListener("keydown",e=>{if(e.target.closest&&e.target.closest("button,.node,#cortex"))return;if(e.key==="ArrowRight"){stop();go(cur+1)}if(e.key==="ArrowLeft"){stop();go(cur-1)}});
+go(0);
+</script>
+
+</body>
+</html>
