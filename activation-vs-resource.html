@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Activation เทียบ Resource</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one toggle; arousal-over-session chart with both curves (selected one emphasised); brain + key points side by side; comparison table */
+:root{
+  --bg:#F3F4F8; --surface:#FFFFFF; --ink:#1A1D2B; --muted:#5C6178; --line:#D9DCE6; --soft:#E8EAF2;
+  --neo:#5553C9; --sub:#B8661A; --hip:#0F8276; --ins:#2F7BB8; --win:#0F8276; --act:#D23C67; --res:#2F7BB8;
+  --f-display:"Bai Jamjuree","IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11131B; --surface:#1A1D28; --ink:#E8EAF2; --muted:#9AA0B8; --line:#2C3040; --soft:#232737;
+  --neo:#9493F2; --sub:#E79A4A; --hip:#3CC0B0; --ins:#6BB3F0; --win:#3CC0B0; --act:#FF6F93; --res:#6BB3F0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11131B; --surface:#1A1D28; --ink:#E8EAF2; --muted:#9AA0B8; --line:#2C3040; --soft:#232737;
+  --neo:#9493F2; --sub:#E79A4A; --hip:#3CC0B0; --ins:#6BB3F0; --win:#3CC0B0; --act:#FF6F93; --res:#6BB3F0; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65}
+.wrap{max-width:1050px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:16px}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.45rem,4.5vw,2.1rem);line-height:1.25;margin:0;text-wrap:balance}
+.lead{margin:.35rem 0 0;color:var(--muted);max-width:68ch}
+
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--soft);padding:4px;border-radius:10px;max-width:560px}
+.seg button{font-family:var(--f-display);font-weight:600;font-size:1rem;line-height:1.25;border:0;border-radius:7px;padding:10px 8px;background:transparent;color:var(--muted);cursor:pointer}
+.seg button small{display:block;font-family:var(--f-body);font-weight:400;font-size:.75rem}
+.seg button.on{background:var(--surface);color:var(--ink)}
+.seg button.on.a{box-shadow:inset 0 -3px 0 var(--act)}
+.seg button.on.r{box-shadow:inset 0 -3px 0 var(--res)}
+.seg button:focus-visible{outline:2px solid var(--act);outline-offset:2px}
+
+.box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.box h2{font-family:var(--f-display);font-size:.92rem;font-weight:600;color:var(--muted);margin:0 0 8px}
+svg{display:block;width:100%;height:auto}
+.ax{font-family:var(--f-mono);font-size:10px;fill:var(--muted)}
+.axl{font-family:var(--f-body);font-size:11px;fill:var(--muted)}
+.gridl line{stroke:var(--line);stroke-width:1}
+.band{fill:var(--win);opacity:.13}
+.edge{stroke:var(--win);stroke-width:1;stroke-dasharray:3 3;opacity:.7}
+.wlbl{font-family:var(--f-body);font-size:11px;fill:var(--win);font-weight:600}
+.curve{fill:none;stroke-linecap:round;stroke-linejoin:round;transition:opacity .4s,stroke-width .4s}
+.endlbl{font-family:var(--f-body);font-size:11.5px;font-weight:600;transition:opacity .4s}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.82rem;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:16px;height:3px;border-radius:2px;margin-right:6px;vertical-align:4px}
+.cap{font-size:.9rem;margin:8px 0 0;max-width:75ch}
+
+.grid{display:grid;gap:16px}
+@media (min-width:860px){.grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}}
+.outline{fill:var(--soft);stroke:var(--neo);stroke-opacity:.3;stroke-width:6}
+.stem{fill:var(--soft);stroke:var(--line);stroke-width:1.5}
+.lbl{font-family:var(--f-body);font-size:11.5px;fill:var(--ink);font-weight:600}
+.lv{font-family:var(--f-mono);font-size:10px;fill:var(--muted)}
+.halo,.core{transition:r .5s ease,opacity .5s ease}
+.link{fill:none;stroke-linecap:round;transition:opacity .5s,stroke-width .5s}
+.linklbl{font-family:var(--f-body);font-size:10px;fill:var(--neo);transition:opacity .5s}
+.eye{fill:var(--surface);stroke:var(--ink);stroke-width:1.5}
+.pupil{fill:var(--ink);transition:cy .5s ease}
+.bnote{font-size:.9rem;margin:8px 0 0}
+
+.points{display:flex;flex-direction:column;gap:10px}
+.pt{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:10px;padding-bottom:10px;border-bottom:1px solid var(--line);font-size:.92rem}
+.pt:last-child{border-bottom:0;padding-bottom:0}
+.pt b{font-family:var(--f-display);font-weight:600;color:var(--muted);font-size:.85rem}
+@media (max-width:420px){.pt{grid-template-columns:1fr;gap:2px}}
+.tag{display:inline-block;font-family:var(--f-mono);font-size:.74rem;padding:2px 9px;border-radius:999px;margin-bottom:8px;border:1px solid}
+
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-display);font-weight:600}
+td:first-child{color:var(--muted);white-space:nowrap}
+th.a{color:var(--act)} th.r{color:var(--res)}
+td.hl{background:var(--soft)}
+.foot{font-size:.8rem;color:var(--muted);max-width:74ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">โมเดลประกอบการเรียน Brainspotting</div>
+    <h1>Activation model เทียบกับ Resource model</h1>
+    <p class="lead">ความต่างหลักคือ ประมวลผลที่ระดับการกระตุ้นแบบไหน Activation ทำงานใกล้ขอบบนของ window of tolerance เพื่อเข้าถึงความจำโดยตรง ส่วน Resource ทำงานจากภาวะที่สงบและมั่นคงก่อน กดสลับเพื่อเปรียบเทียบ</p>
+  </header>
+
+  <div class="seg" id="seg" role="tablist" aria-label="เลือกโมเดล">
+    <button type="button" role="tab" class="a" data-m="act">Activation model<small>ตำแหน่งตาที่ SUD สูงสุด</small></button>
+    <button type="button" role="tab" class="r" data-m="res">Resource model<small>ตำแหน่งตาที่สงบและมั่นคงที่สุด</small></button>
+  </div>
+
+  <div class="box">
+    <h2>ระดับการกระตุ้นตลอดหนึ่ง session (ตัวอย่างประกอบ)</h2>
+    <svg viewBox="0 0 900 260" aria-label="กราฟระดับการกระตุ้นของสองโมเดลตลอด session">
+      <g class="gridl" id="cgrid"></g>
+      <rect class="band" id="band" x="50" width="780"/>
+      <line class="edge" id="eHi" x1="50" x2="830"/>
+      <line class="edge" id="eLo" x1="50" x2="830"/>
+      <text class="wlbl" x="56" id="wl">window of tolerance</text>
+      <path class="curve" id="cRes" stroke="var(--res)"/>
+      <path class="curve" id="cAct" stroke="var(--act)"/>
+      <text class="endlbl" id="lAct" fill="var(--act)" x="838">Activation</text>
+      <text class="endlbl" id="lRes" fill="var(--res)" x="838">Resource</text>
+      <text class="axl" x="440" y="254" text-anchor="middle">นาทีใน session</text>
+      <text class="axl" x="14" y="128" text-anchor="middle" transform="rotate(-90 14 128)">ระดับการกระตุ้น</text>
+    </svg>
+    <div class="legend">
+      <span><i style="background:var(--act)"></i>Activation model</span>
+      <span><i style="background:var(--res)"></i>Resource model</span>
+      <span><i style="background:var(--win);opacity:.4;height:8px;vertical-align:0"></i>Window of tolerance</span>
+    </div>
+    <p class="cap" id="cap"></p>
+  </div>
+
+  <div class="grid">
+    <div class="box">
+      <h2>สมองของผู้รับการบำบัดขณะประมวลผล</h2>
+      <svg viewBox="0 0 420 272" role="img" aria-label="แผนผังสมองแสดงระดับการทำงาน">
+        <path class="outline" d="M78,150 C62,92 120,40 205,34 C292,28 372,72 380,138 C384,172 368,196 340,200 C318,203 300,196 286,204 C270,212 236,214 212,212 C170,209 132,206 108,192 C90,182 82,168 78,150 Z"/>
+        <path class="stem" d="M240,205 C238,230 242,256 250,268 L270,268 C272,252 270,228 268,205 Z"/>
+        <path class="link" id="reg" stroke="var(--neo)" d="M120,100 L160,184"/>
+        <text class="linklbl" id="regl" x="112" y="148" text-anchor="end">การกำกับ top-down</text>
+        <ellipse class="eye" cx="40" cy="140" rx="17" ry="11"/>
+        <circle class="pupil" id="pupil" cx="36" cy="134" r="5"/>
+        <g id="nodes"></g>
+      </svg>
+      <p class="bnote" id="bnote"></p>
+    </div>
+    <div class="box">
+      <span class="tag" id="tag"></span>
+      <div class="points" id="points"></div>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>ตารางเปรียบเทียบ</h2>
+    <div class="tablebox"><table id="tbl">
+      <tr><th></th><th class="a">Activation model</th><th class="r">Resource model</th></tr>
+      <tr><td>ตำแหน่งตา</td><td>SUD สูงสุด (activation spot)</td><td>สงบและมั่นคงที่สุด (resource spot)</td></tr>
+      <tr><td>ระดับการกระตุ้น</td><td>ใกล้ขอบบนของ window</td><td>กลางหรือค่อนไปทางล่างของ window</td></tr>
+      <tr><td>ระบบที่เด่น</td><td>Amygdala, salience network, sympathetic</td><td>Prefrontal cortex, parasympathetic, insula</td></tr>
+      <tr><td>Hippocampus</td><td>ทำงานได้ แต่เสี่ยงถูกยับยั้งถ้าเกินขอบบน</td><td>ทำงานได้ดี</td></tr>
+      <tr><td>ความเร็ว</td><td>เร็วและเข้มข้น</td><td>ช้าและค่อยเป็นค่อยไป</td></tr>
+      <tr><td>ความเสี่ยง</td><td>Hyperarousal หรือ dissociation</td><td>ประมวลผลช้า หรือหลีกเลี่ยงเนื้อหา</td></tr>
+      <tr><td>เหมาะกับ</td><td>Window of tolerance กว้าง กำกับตัวเองได้ดี</td><td>Complex trauma, dissociation สูง, ช่วงต้นของการบำบัด</td></tr>
+    </table></div>
+    <p class="cap">ในทางปฏิบัติมักสลับไปมาระหว่างสองแบบตามระดับการกระตุ้น หากการกระตุ้นสูงเกินขอบบน ผู้บำบัดจะเปลี่ยนไปใช้ resource spot แล้วค่อยกลับมาที่ activation spot เมื่อสงบลง คล้ายหลัก titration และ pendulation ใน Somatic Experiencing</p>
+  </div>
+  <p class="foot">กราฟและระดับการทำงานของสมองเป็นตัวอย่างประกอบเพื่อการเรียน ไม่ใช่ค่าที่วัดได้จริง กลไกทางประสาทของ Brainspotting เป็นคำอธิบายเชิงทฤษฎี หลักฐานโดยตรงยังมีจำกัด และ polyvagal theory ยังเป็นที่ถกเถียงในทางวิชาการ</p>
+</div>
+
+<script>
+const LO=2.5,HI=7.5,X0=50,X1=830,Y0=228,Y1=14,TMAX=45;
+const xOf=t=>X0+t/TMAX*(X1-X0), yOf=v=>Y0-v/10*(Y0-Y1);
+const D={
+ act:[[0,5],[3,6.8],[6,7.3],[10,7.15],[14,6.5],[18,5.5],[22,4.5],[26,3.7],[30,3.1],[35,2.8],[40,2.65],[45,2.6]],
+ res:[[0,5],[3,4.5],[6,4.3],[10,4.35],[14,4.25],[18,4.1],[22,3.95],[26,3.8],[30,3.6],[35,3.4],[40,3.25],[45,3.15]]
+};
+function smooth(pts){const p=pts.map(([t,v])=>[xOf(t),yOf(v)]);let d=`M${p[0][0]},${p[0][1]}`;
+  for(let i=0;i<p.length-1;i++){const p0=p[i-1]||p[i],p1=p[i],p2=p[i+1],p3=p[i+2]||p2;
+    d+=` C${(p1[0]+(p2[0]-p0[0])/6).toFixed(1)},${(p1[1]+(p2[1]-p0[1])/6).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])/6).toFixed(1)},${(p2[1]-(p3[1]-p1[1])/6).toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`}return d}
+const $=i=>document.getElementById(i),NS="http://www.w3.org/2000/svg";
+(function(){let g="";for(let v=0;v<=10;v+=2)g+=`<line x1="${X0}" x2="${X1}" y1="${yOf(v)}" y2="${yOf(v)}"/><text class="ax" x="${X0-8}" y="${yOf(v)+3}" text-anchor="end">${v}</text>`;
+  for(let t=0;t<=45;t+=5)g+=`<text class="ax" x="${xOf(t)}" y="${Y0+15}" text-anchor="middle">${t}</text>`;$("cgrid").innerHTML=g;
+  $("band").setAttribute("y",yOf(HI));$("band").setAttribute("height",yOf(LO)-yOf(HI));
+  for(const[id,v] of [["eHi",HI],["eLo",LO]]){$(id).setAttribute("y1",yOf(v));$(id).setAttribute("y2",yOf(v))}
+  $("wl").setAttribute("y",yOf(HI)+14);
+  $("cAct").setAttribute("d",smooth(D.act));$("cRes").setAttribute("d",smooth(D.res));
+  $("lAct").setAttribute("y",yOf(2.6)+4);$("lRes").setAttribute("y",yOf(3.15)+4);
+})();
+
+const R={
+  pfc:{x:120,y:100,c:"var(--neo)",n:"Prefrontal cortex",lx:0,ly:-17},
+  ins:{x:198,y:126,c:"var(--ins)",n:"Insula",lx:0,ly:-16},
+  amy:{x:160,y:184,c:"var(--sub)",n:"Amygdala",lx:-15,ly:4,a:"end"},
+  hip:{x:214,y:198,c:"var(--hip)",n:"Hippocampus",lx:0,ly:25},
+  bs:{x:258,y:238,c:"var(--sub)",n:"ก้านสมอง",lx:16,ly:4,a:"start"}
+};
+const LV=["ต่ำ","ปานกลาง","สูง"];
+const M={
+ act:{
+  a:{pfc:62,ins:70,amy:88,hip:62,bs:82},
+  reg:.45,
+  cap:"Activation เริ่มจากการกระตุ้นที่สูงขึ้นจนใกล้ขอบบน ช่วงนี้คือช่วงที่ประมวลผลเข้มข้นที่สุด จากนั้นการกระตุ้นลดลงเร็วเมื่อความจำได้รับการประมวลผล ต้องคอยระวังไม่ให้เกินขอบบน",
+  bnote:"Amygdala และก้านสมองทำงานสูงเพราะเนื้อหาความจำถูกกระตุ้นเต็มที่ Prefrontal cortex ต้องทำหน้าที่ผู้สังเกตภายใต้แรงกดดัน และ hippocampus ยังทำงานได้ตราบที่การกระตุ้นไม่เกินขอบบน",
+  tag:"เข้าถึงความจำโดยตรง",
+  pts:[["เป้าหมาย","กระตุ้นเครือข่ายที่เก็บความจำให้มากที่สุด เพื่อประมวลผลเนื้อหาโดยตรง"],["กลไกที่เสนอ","ความจำที่ถูกกระตุ้นขณะที่ prefrontal cortex และ hippocampus ยังทำงาน อาจเข้าสู่ reconsolidation และถูกเก็บกลับพร้อมบริบทใหม่"],["ข้อดี","ประมวลผลได้เร็วและลึก SUD ลดลงมากในเวลาสั้น"],["ความเสี่ยง","ถ้าเกินขอบบน prefrontal cortex และ hippocampus ถูกยับยั้ง ความจำอาจถูกตอกย้ำแทนการประมวลผล หรือเกิด dissociation"],["เหมาะกับ","ผู้ที่มี window of tolerance กว้างและกำกับตัวเองได้ดี"]]},
+ res:{
+  a:{pfc:85,ins:85,amy:42,hip:82,bs:38},
+  reg:.95,
+  cap:"Resource คงระดับการกระตุ้นไว้กลาง window ตลอด session การประมวลผลเกิดขึ้นช้าและค่อยเป็นค่อยไป การกระตุ้นจึงลดลงช้ากว่า แต่ไม่เข้าใกล้ขอบบนเลย",
+  bnote:"Prefrontal cortex ทำงานเต็มที่และกำกับ amygdala แบบ top-down ได้ดี Insula รับรู้สัญญาณความปลอดภัยและความมั่นคงในร่างกาย Hippocampus ทำงานได้ดี จึงใส่บริบทเวลาให้ความจำได้",
+  tag:"ประมวลผลจากภาวะที่มั่นคง",
+  pts:[["เป้าหมาย","ให้ระบบประสาทกลับมาอยู่ในภาวะที่กำกับตัวเองได้ก่อน แล้วค่อยประมวลผลจากภาวะนั้น"],["กลไกที่เสนอ","การจดจ่อที่สัญญาณความปลอดภัยเพิ่มการทำงานของ parasympathetic และการกำกับจาก prefrontal cortex (ในกรอบ polyvagal เรียกว่า ventral vagal state)"],["ข้อดี","ปลอดภัย และเมื่อทำซ้ำเชื่อว่าช่วยขยาย window of tolerance"],["ความเสี่ยง","ประมวลผลช้า และบางครั้งอาจกลายเป็นการหลีกเลี่ยงเนื้อหาที่ยาก"],["เหมาะกับ","Complex trauma, dissociation สูง, window of tolerance แคบ หรือช่วงต้นของการบำบัด"]]}
+};
+const nd={};
+for(const[k,r] of Object.entries(R)){
+  const g=document.createElementNS(NS,"g");
+  g.innerHTML=`<circle class="halo" cx="${r.x}" cy="${r.y}" fill="${r.c}" opacity=".18"/><circle class="core" cx="${r.x}" cy="${r.y}" fill="${r.c}"/><text class="lbl" x="${r.x+r.lx}" y="${r.y+r.ly}" text-anchor="${r.a||"middle"}">${r.n}</text><text class="lv" x="${r.x+r.lx}" y="${r.y+r.ly+12}" text-anchor="${r.a||"middle"}"></text>`;
+  $("nodes").appendChild(g);nd[k]=g;
+}
+function set(m){
+  const s=M[m],other=m==="act"?"res":"act";
+  [...$("seg").children].forEach(b=>{const on=b.dataset.m===m;b.classList.toggle("on",on);b.setAttribute("aria-selected",on)});
+  const cm={act:$("cAct"),res:$("cRes")},lm={act:$("lAct"),res:$("lRes")};
+  cm[m].style.opacity=1;cm[m].style.strokeWidth=3.5;cm[other].style.opacity=.3;cm[other].style.strokeWidth=2;
+  lm[m].style.opacity=1;lm[other].style.opacity=.35;
+  $("cRes").parentNode.appendChild(cm[m]);
+  $("cap").textContent=s.cap;$("bnote").textContent=s.bnote;
+  const col=m==="act"?"var(--act)":"var(--res)";
+  $("tag").textContent=s.tag;$("tag").style.color=col;$("tag").style.borderColor=col;
+  $("points").innerHTML=s.pts.map(([a,b])=>`<div class="pt"><b>${a}</b><span>${b}</span></div>`).join("");
+  for(const k in nd){const v=s.a[k];const[h,c]=nd[k].querySelectorAll("circle");h.setAttribute("r",8+v*.17);c.setAttribute("r",4+v*.08);c.setAttribute("opacity",.3+v/140);
+    nd[k].querySelector(".lv").textContent=LV[v>=75?2:v>=55?1:0]}
+  $("reg").style.opacity=.2+s.reg*.7;$("reg").style.strokeWidth=1+s.reg*4;$("regl").style.opacity=.4+s.reg*.6;
+  $("pupil").setAttribute("cy",m==="act"?132:150);
+}
+[...$("seg").children].forEach(b=>b.onclick=()=>set(b.dataset.m));
+set("act");
+</script>
+
+</body>
+</html>
